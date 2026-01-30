@@ -147,6 +147,39 @@
 </div>
 
 <script>
+
+function fileCandidates(kind){
+  // kind: 'zones'|'rates'|'floater'|'surcharges'
+  const w = (WERK||'').toLowerCase();
+  const base = kind + '.';
+  const cand = [];
+  // preferred: per-werk files
+  if (w) {
+    if (kind==='zones' || kind==='rates') cand.push(`${kind}_${w}.csv`);
+    else cand.push(`${kind}_${w}.json`);
+  }
+  // fallback: generic files
+  if (kind==='zones' || kind==='rates') cand.push(`${kind}.csv`);
+  else cand.push(`${kind}.json`);
+  // legacy names from earlier versions
+  if (kind==='floater') cand.push('floater.json');
+  if (kind==='surcharges') cand.push('surcharges.json');
+  return cand;
+}
+
+async function fetchFirstExisting(candidates){
+  let lastErr = null;
+  for (const f of candidates){
+    try{
+      const res = await fetch(f, {cache:'no-store'});
+      if (res.ok) return await res.text();
+      lastErr = new Error(`${f}: HTTP ${res.status}`);
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('Datei nicht gefunden');
+}
+
+
 // ---------- helpers ----------
 function normalizeHeader(s){ return String(s||"").trim().toLowerCase().replace(/\s+/g," "); }
 function parseCSV(text){
@@ -173,6 +206,10 @@ function parseNumDE(v){
   const n = Number(t);
   return Number.isFinite(n) ? n : NaN;
 }
+
+function val(id){ const el=document.getElementById(id); return el? String(el.value||'').trim() : ''; }
+function num(id){ const s=val(id).replace(',', '.'); const n=Number(s); return Number.isFinite(n)? n: NaN; }
+
 function money(n){
   return Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2}) : "—";
 }
