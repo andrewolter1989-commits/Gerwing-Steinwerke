@@ -147,6 +147,11 @@
 </div>
 
 <script>
+// Global error handler (zeigt JS-Fehler im roten Kasten)
+window.addEventListener('error', (ev)=>{
+  try{ const msg = ev?.error?.message || ev?.message || String(ev); const el=document.getElementById('loadErr'); if(el){ el.style.display='block'; el.textContent=msg; } }catch(_){ }
+});
+
 
 function fileCandidates(kind){
   // kind: 'zones'|'rates'|'floater'|'surcharges'
