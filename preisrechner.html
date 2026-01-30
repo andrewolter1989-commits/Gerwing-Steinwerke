@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Gerwing Steinwerke Preisrechner</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body{background:#f3f6f9;}
+  h1{color:#0b5c8a;font-weight:700;}
+  .card{border-radius:12px;}
+  .btn-primary{background:#0b5c8a;border-color:#0b5c8a;}
+  .btn-primary:hover{background:#094b70;border-color:#094b70;}
+  .table thead th{background:#0b5c8a;color:#fff;border-color:#0b5c8a;}
+  .cheapest{background:#d9f2df;}
+  .mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+</style>
+</head>
+<body>
+<div class="container py-4">
+  <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+    <div>
+      <h1 class="mb-1" id="title">Gerwing Steinwerke Preisrechner</h1>
+      <div class="text-muted" id="subtitle"></div>
+    </div>
+    <a class="btn btn-outline-secondary" href="index.html">Zurück</a>
+  </div>
+
+  <div class="card shadow-sm mt-3">
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">PLZ</label>
+          <input id="plz1" class="form-control" placeholder="z. B. 27777" inputmode="numeric" maxlength="5"/>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Gewicht (kg)</label>
+          <input id="w1" class="form-control" placeholder="z. B. 2500" inputmode="decimal"/>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button class="btn btn-primary px-4" id="btnCalc">Berechnen</button>
+          <button class="btn btn-outline-secondary" id="btnReset">Zurücksetzen</button>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-12">
+          <div class="d-flex gap-4 flex-wrap">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="cbBaustelle">
+              <label class="form-check-label" for="cbBaustelle">Baustelle</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="cbStop2">
+              <label class="form-check-label" for="cbStop2">Zweiter Stopp</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="cbStop3">
+              <label class="form-check-label" for="cbStop3">Dritter Stopp</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1" id="stopsRow" style="display:none;">
+        <div class="col-md-6" id="stop2Box" style="display:none;">
+          <div class="border rounded-3 p-3 bg-white">
+            <div class="fw-semibold mb-2">2. Stopp (optional, nur Anzeige)</div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label">PLZ 2</label>
+                <input id="plz2" class="form-control" inputmode="numeric" maxlength="5"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Gewicht 2 (kg)</label>
+                <input id="w2" class="form-control" inputmode="decimal"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6" id="stop3Box" style="display:none;">
+          <div class="border rounded-3 p-3 bg-white">
+            <div class="fw-semibold mb-2">3. Stopp (optional, nur Anzeige)</div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label">PLZ 3</label>
+                <input id="plz3" class="form-control" inputmode="numeric" maxlength="5"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Gewicht 3 (kg)</label>
+                <input id="w3" class="form-control" inputmode="decimal"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-danger mt-3 d-none" id="errBox"></div>
+      <div class="alert alert-warning mt-3 d-none" id="infoBox"></div>
+
+      <div class="alert mt-3" style="background:#d9f2df;border:1px solid #c8e8d0;">
+        <div class="row">
+          <div class="col-md-8">
+            <div><span class="mono">PLZ:</span> <span id="sumPlz">—</span></div>
+            <div><span class="mono">Gewicht:</span> <span id="sumW">—</span></div>
+            <div><span class="mono">Optionen:</span> <span id="sumOpt">—</span></div>
+            <div class="mt-2"><span class="mono">Gesamtgewicht / Stops / Baustelle:</span> <span id="sumTotals">—</span></div>
+            <div><span class="mono">Stops:</span> <span id="sumStops">—</span></div>
+          </div>
+          <div class="col-md-4">
+            <div class="fw-semibold">Günstigster Anbieter</div>
+            <div id="sumCheapest">—</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="card shadow-sm mt-3">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0" id="tbl">
+          <thead>
+            <tr>
+              <th>Spediteur</th>
+              <th>Zone</th>
+              <th>Basis (€)</th>
+              <th class="colBaustelle d-none">Baustelle (€)</th>
+              <th class="colStop2 d-none">2. Stopp (€)</th>
+              <th class="colStop3 d-none">3. Stopp (€)</th>
+              <th>Floater (%)</th>
+              <th>Floater (€)</th>
+              <th>Preis (€)</th>
+              <th>Grund</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            <tr><td colspan="10" class="text-muted">Noch keine Berechnung.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- helpers ----------
+function normalizeHeader(s){ return String(s||"").trim().toLowerCase().replace(/\s+/g," "); }
+function parseCSV(text){
+  // supports ; or , delimiter (auto)
+  const lines = text.replace(/\r/g,"").split("\n").filter(l=>l.trim().length>0);
+  if(!lines.length) return [];
+  const delim = (lines[0].split(";").length>lines[0].split(",").length) ? ";" : ",";
+  return lines.map(line=>{
+    // naive split (no quoted fields expected for our exports)
+    return line.split(delim).map(c=>c.trim());
+  });
+}
+async function fetchText(url){
+  const res = await fetch(url, {cache:"no-store"});
+  if(!res.ok) throw new Error(url+": HTTP "+res.status);
+  return await res.text();
+}
+function parseNumDE(v){
+  if(v==null) return NaN;
+  const s = String(v).trim();
+  if(!s) return NaN;
+  // allow "1.234,56" or "1234,56" or "1234.56"
+  const t = s.replace(/\./g,"").replace(",",".");
+  const n = Number(t);
+  return Number.isFinite(n) ? n : NaN;
+}
+function money(n){
+  return Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2}) : "—";
+}
+function pct(n){
+  return Number.isFinite(n) ? n.toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2})+"%" : "—";
+}
+function isPLZ(s){ return /^\d{5}$/.test(String(s||"").trim()); }
+function uniq(arr){ return Array.from(new Set(arr)); }
+
+function getZonePrice(band, zone){
+  if(!band) return null;
+  const z = String(zone);
+  const zp = band.zPrices;
+  if(!zp) return null;
+  if(typeof zp.get === "function") return zp.get(zone) ?? zp.get(z) ?? null;
+  // object map
+  if(Object.prototype.hasOwnProperty.call(zp, zone)) return zp[zone];
+  if(Object.prototype.hasOwnProperty.call(zp, z)) return zp[z];
+  return null;
+}
+
+function asPlz(v){
+  if(v==null) return "";
+  if(typeof v === "string") return v.trim();
+  if(typeof v === "number") return String(v);
+  if(typeof v.value !== "undefined") return String(v.value).trim();
+  return String(v);
+}
+function asNum(v){
+  if(typeof v === "number") return Number.isFinite(v) ? v : 0;
+  const n = parseFloat(String(v).replace(/\./g,"").replace(",","."));
+  return Number.isFinite(n) ? n : 0;
+}
+
+
+// ---------- config ----------
+function getWerk(){
+  const p = new URLSearchParams(location.search);
+  const w = (p.get("werk")||"").toLowerCase();
+  return (w==="clausnitz") ? "clausnitz" : "holdorf";
+}
+function fileFor(base){
+  const werk = getWerk();
+  return base.replace("{werk}", werk);
+}
+
+// expected filenames (edit in repo if needed):
+// zones_{werk}.csv, rates_{werk}.csv, floater_{werk}.json, surcharges_{werk}.json
+const URL_ZONES = fileFor("zones_{werk}.csv");
+const URL_RATES = fileFor("rates_{werk}.csv");
+const URL_FLOAT = fileFor("floater_{werk}.json");
+const URL_SURCH = fileFor("surcharges_{werk}.json");
+
+// ---------- state ----------
+let ZONES=[], RATES=[], FORWARDERS=[], FLOATERS={}, SURCH={};
+
+// ---------- load ----------
+function findHeaderRow(rows, required){
+  for(let i=0;i<Math.min(rows.length,20);i++){
+    const h = rows[i].map(normalizeHeader);
+    const ok = required.every(r => h.includes(r));
+    if(ok) return {i, h};
+  }
+  return null;
+}
+
+function pick(h, a, b){ // find index for a OR b
+  const ia=h.indexOf(a); if(ia>=0) return ia;
+  const ib=h.indexOf(b); if(ib>=0) return ib;
+  return -1;
+}
+
+async function loadAll(){
+  document.getElementById("errBox").classList.add("d-none");
+  document.getElementById("infoBox").classList.add("d-none");
+
+  const werk = getWerk();
+  document.getElementById("title").textContent = "Gerwing Steinwerke Preisrechner — Werk " + (werk==="holdorf" ? "Holdorf" : "Clausnitz");
+
+  // zones
+  const ztxt = await fetchText(URL_ZONES);
+  const zrows = parseCSV(ztxt);
+  const zfound = findHeaderRow(zrows, ["forwarder","dest from","dest to","zone"]);
+  if(!zfound) throw new Error("zones: Header nicht gefunden (Forwarder / Dest From / Dest To / Zone)");
+  const zH = zfound.h;
+  const idxF = zH.indexOf("forwarder");
+  const idxFrom = zH.indexOf("dest from");
+  const idxTo = zH.indexOf("dest to");
+  const idxZone = zH.indexOf("zone");
+  ZONES = [];
+  for(let r=zfound.i+1;r<zrows.length;r++){
+    const row=zrows[r];
+    const f=row[idxF]; if(!f) continue;
+    const from=parseInt(row[idxFrom],10);
+    const to=parseInt(row[idxTo],10);
+    const zone=parseInt(row[idxZone],10);
+    if(!Number.isFinite(from)||!Number.isFinite(to)||!Number.isFinite(zone)) continue;
+    ZONES.push({forwarder:f.trim(), from, to, zone});
+  }
+  FORWARDERS = uniq(ZONES.map(z=>z.forwarder)).sort((a,b)=>a.localeCompare(b,"de"));
+  if(!FORWARDERS.length) throw new Error("Keine Spediteure in zones gefunden.");
+
+  // rates
+  const rtxt = await fetchText(URL_RATES);
+  const rrows = parseCSV(rtxt);
+  const rfound = findHeaderRow(rrows, ["forwarder"]);
+  if(!rfound) throw new Error("rates: Header nicht gefunden (Forwarder ...)");
+  const rH = rfound.h;
+
+  // find band columns
+  const idxChgFrom = pick(rH, "chg from", "from");
+  const idxChgTo = pick(rH, "chg to", "to");
+  const idxUnit = pick(rH, "unit", "einheit");
+  if(idxChgFrom<0 || idxChgTo<0) throw new Error("rates: Header braucht CHG from / CHG to");
+  // zone columns: accept "zone 1" ... or "zone 1 " or "zone1"
+  const zoneCols = {};
+  for(let i=0;i<rH.length;i++){
+    const m = rH[i].match(/^zone\s*(\d+)$/);
+    if(m) zoneCols[parseInt(m[1],10)] = i;
+  }
+  if(!Object.keys(zoneCols).length){
+    // sometimes "Zone 1" has extra text like "zone 1 "
+    for(let i=0;i<rH.length;i++){
+      const mm = rH[i].replace(/\s+/g,"").match(/^zone(\d+)$/);
+      if(mm) zoneCols[parseInt(mm[1],10)] = i;
+    }
+  }
+  if(!Object.keys(zoneCols).length) throw new Error("rates: Keine Zone-Spalten gefunden (Zone 1, Zone 2, ...).");
+
+  const idxFwd = rH.indexOf("forwarder");
+  RATES = [];
+  for(let r=rfound.i+1;r<rrows.length;r++){
+    const row=rrows[r];
+    const f=row[idxFwd]; if(!f) continue;
+    const a=parseNumDE(row[idxChgFrom]);
+    const b=parseNumDE(row[idxChgTo]);
+    if(!Number.isFinite(a)||!Number.isFinite(b)) continue;
+    const unit = idxUnit>=0 ? String(row[idxUnit]||"").trim() : "";
+    // store all zone prices for the row
+    const zPrices = {};
+    for(const [z,idx] of Object.entries(zoneCols)){
+      const v=parseNumDE(row[idx]);
+      if(Number.isFinite(v)) zPrices[Number(z)] = v;
+    }
+    RATES.push({forwarder:f.trim(), from:a, to:b, unit, zPrices});
+  }
+
+  // floater
+  try{
+    const ftxt = await fetchText(URL_FLOAT);
+    FLOATERS = JSON.parse(ftxt||"{}") || {};
+  }catch(e){
+    FLOATERS = {};
+  }
+
+  // surcharges
+  try{
+    const stxt = await fetchText(URL_SURCH);
+    SURCH = JSON.parse(stxt||"{}") || {};
+  }catch(e){
+    SURCH = {};
+  }
+
+  showInfo("Daten geladen: " + FORWARDERS.length + " Spediteure.");
+  renderEmptyTable();
+}
+
+function showErr(msg){
+  const el=document.getElementById("errBox");
+  el.textContent = msg;
+  el.classList.remove("d-none");
+}
+function showInfo(msg){
+  const el=document.getElementById("infoBox");
+  el.textContent = msg;
+  el.classList.remove("d-none");
+}
+function renderEmptyTable(){
+  const tb=document.getElementById("tbody");
+  tb.innerHTML = '<tr><td colspan also="10" class="text-muted">Noch keine Berechnung.</td></tr>';
+}
+
+// ---------- lookup ----------
+function findZone(forwarder, plz){
+  const p = parseInt(plz,10);
+  for(const z of ZONES){
+    if(z.forwarder===forwarder && p>=z.from && p<=z.to) return z.zone;
+  }
+  return null;
+}
+function findRate(forwarder, zone, weight){
+      const w = Number(weight);
+      const zn = Number(zone);
+
+      // some sheets use unit "SHP" even for kg bands; be tolerant
+      const candidates = ["SHP","KG",""];
+
+      for (const unit of candidates){
+        for (const band of RATES){
+          if (band.forwarder !== forwarder) continue;
+
+          if (unit && String(band.unit||"").toUpperCase() !== unit) continue;
+
+          if (!Number.isFinite(band.from) || !Number.isFinite(band.to)) continue;
+          if (w < band.from || w > band.to) continue;
+
+          const price = band.zPrices ? getZonePrice(band, zn) : null;
+          if (price == null) continue; // IMPORTANT: try other matching bands
+
+          return { ok:true, base: price };
+        }
+      }
+
+      // If no band matched at all, say so; otherwise zone missing
+      let sawBand=false;
+      for (const band of RATES){
+        if (band.forwarder !== forwarder) continue;
+        if (!Number.isFinite(band.from) || !Number.isFinite(band.to)) continue;
+        if (w < band.from || w > band.to) continue;
+        sawBand=true;
+        break;
+      }
+      if (!sawBand) return { ok:false, reason:"Kein Gewichtsband" };
+      return { ok:false, reason:`Kein Preis für Zone ${zn}` };
+    }
+function getFloaterPct(forwarder){
+  const v = FLOATERS[forwarder];
+  const n = parseNumDE(v);
+  return Number.isFinite(n) ? n : 0;
+}
+function getSurch(forwarder){
+  const obj = SURCH[forwarder] || {};
+  return {
+    baustelle: Number.isFinite(parseNumDE(obj.baustelle)) ? parseNumDE(obj.baustelle) : 0,
+    stop2: Number.isFinite(parseNumDE(obj.stop2)) ? parseNumDE(obj.stop2) : 0,
+    stop3: Number.isFinite(parseNumDE(obj.stop3)) ? parseNumDE(obj.stop3) : 0,
+  };
+}
+
+// ---------- calc ----------
+function readInputs(){
+  const plz1 = document.getElementById("plz1").value.trim();
+  const w1 = document.getElementById("w1").value.trim();
+
+  const applyBaz = document.getElementById("cbBaustelle").checked;
+  const use2 = document.getElementById("cbStop2").checked;
+  const use3 = document.getElementById("cbStop3").checked;
+
+  const plz2 = document.getElementById("plz2").value.trim();
+  const w2 = document.getElementById("w2").value.trim();
+  const plz3 = document.getElementById("plz3").value.trim();
+  const w3 = document.getElementById("w3").value.trim();
+
+  if(!isPLZ(plz1)) throw new Error("PLZ muss 5-stellig sein.");
+  const w = parseNumDE(w1);
+  if(!Number.isFinite(w) || w<=0) throw new Error("Gewicht muss > 0 sein.");
+
+  if(use2){
+    if(plz2 && !isPLZ(plz2)) throw new Error("PLZ 2 muss 5-stellig sein (oder leer).");
+    if(w2 && !(parseNumDE(w2)>0)) throw new Error("Gewicht 2 muss > 0 sein (oder leer).");
+  }
+  if(use3){
+    if(plz3 && !isPLZ(plz3)) throw new Error("PLZ 3 muss 5-stellig sein (oder leer).");
+    if(w3 && !(parseNumDE(w3)>0)) throw new Error("Gewicht 3 muss > 0 sein (oder leer).");
+  }
+
+  return {plz1, w, applyBaz, use2, use3};
+}
+
+function updateCols(){
+  const applyBaz = document.getElementById("cbBaustelle").checked;
+  const use2 = document.getElementById("cbStop2").checked;
+  const use3 = document.getElementById("cbStop3").checked;
+  document.querySelectorAll(".colBaustelle").forEach(el=>el.classList.toggle("d-none", !applyBaz));
+  document.querySelectorAll(".colStop2").forEach(el=>el.classList.toggle("d-none", !use2));
+  document.querySelectorAll(".colStop3").forEach(el=>el.classList.toggle("d-none", !use3));
+}
+
+function calc(){
+  updateCols();
+  document.getElementById("errBox").classList.add("d-none");
+  const tb=document.getElementById("tbody");
+  tb.innerHTML = "";
+
+  const {plz1, w, applyBaz, use2, use3} = readInputs();
+
+  const options = [];
+  if(applyBaz) options.push("Baustelle");
+  if(use2) options.push("2. Stopp");
+  if(use3) options.push("3. Stopp");
+  document.getElementById("sumPlz").textContent = plz1;
+  const totalW = w + (use2 ? w2 : 0) + (use3 ? w3 : 0);
+    document.getElementById("sumW").textContent = totalW.toLocaleString("de-DE");
+  document.getElementById("sumOpt").textContent = options.length ? options.join(", ") : "—";
+  // totals & stop details
+  const stops = [{plz:plz1, w:w}];
+  if (cbStop2.checked) stops.push({plz:plz2, w:w2});
+  if (cbStop3.checked) stops.push({plz:plz3, w:w3});
+  const totalW = stops.reduce((a,s)=>a + (Number(s.w)||0), 0);
+  const stopCount = stops.length;
+  const hasBaustelle = cbBaustelle.checked;
+  document.getElementById("sumTotals").textContent = `${totalW.toLocaleString("de-DE")} kg / ${stopCount} Stop${stopCount===1?"":"ps"} / ${hasBaustelle?"Baustellentour":"Standard"}`;
+  document.getElementById("sumStops").textContent = stops.map((s,i)=>`PLZ${i+1}: ${s.plz || "—"} / Gewicht${i+1}: ${(Number(s.w)||0).toLocaleString("de-DE")} kg`).join(" | ");
+  document.getElementById("sumCheapest").textContent = "—";
+
+  // exclusions like old project (can be adjusted)
+  const excludeBaustelle = new Set(["Koch", "DB Schenker", "Hartmann", "Sievert", "Berghegger", "Elvis"]);
+  const excludeStop2 = new Set(["Koch"]);
+  const excludeStop3 = new Set(["Koch"]);
+
+  let cheapest = null; // {fwd, price}
+
+  const rowsOut = [];
+
+  for(const fwd of FORWARDERS){
+    let zone = findZone(fwd, plz1);
+    let base = null, reason="";
+
+    if(zone==null){
+      reason = "PLZ nicht in Zone";
+    }else{
+      const rate = findRate(fwd, zone, w);
+      base = rate.value;
+      reason = rate.reason;
+      if(base==null) zone = zone; // keep
+    }
+
+    // surcharges
+    const s = getSurch(fwd);
+    const baz = (applyBaz && !excludeBaustelle.has(fwd)) ? s.baustelle : 0;
+    const baz2 = (use2 && !excludeStop2.has(fwd)) ? s.stop2 : 0;
+    const baz3 = (use3 && !excludeStop3.has(fwd)) ? s.stop3 : 0;
+
+    // if excluded but selected -> mark as not available
+    let blocked = false;
+    if(applyBaz && excludeBaustelle.has(fwd)){ blocked = true; reason = "Keine Baustellenzustellung"; }
+    if(use2 && excludeStop2.has(fwd)){ blocked = true; reason = "Kein 2. Stopp"; }
+    if(use3 && excludeStop3.has(fwd)){ blocked = true; reason = "Kein 3. Stopp"; }
+
+    let floPct = getFloaterPct(fwd);
+    let floEur = null, price = null;
+
+    if(!blocked && Number.isFinite(base)){
+      floEur = base * (floPct/100);
+      price = base + floEur + baz + baz2 + baz3;
+      if(cheapest==null || price < cheapest.price){
+        cheapest = {fwd, price};
+      }
+    }else{
+      base = null;
+    }
+
+    rowsOut.push({fwd, zone, base, baz, baz2, baz3, floPct, floEur, price, reason});
+  }
+
+  // render
+  for(const r of rowsOut){
+    const tr=document.createElement("tr");
+    if(cheapest && r.fwd===cheapest.fwd) tr.classList.add("cheapest");
+
+    const td = (v)=>{ const x=document.createElement("td"); x.textContent=v; return x; };
+
+    tr.appendChild(td(r.fwd));
+    tr.appendChild(td(r.zone==null ? "—" : String(r.zone)));
+    tr.appendChild(td(money(r.base)));
+
+    const tdBaz=td(money(r.baz)); tdBaz.classList.add("colBaustelle"); if(!applyBaz) tdBaz.classList.add("d-none"); tr.appendChild(tdBaz);
+    const tdB2=td(money(r.baz2)); tdB2.classList.add("colStop2"); if(!use2) tdB2.classList.add("d-none"); tr.appendChild(tdB2);
+    const tdB3=td(money(r.baz3)); tdB3.classList.add("colStop3"); if(!use3) tdB3.classList.add("d-none"); tr.appendChild(tdB3);
+
+    tr.appendChild(td(pct(r.floPct)));
+    tr.appendChild(td(money(r.floEur)));
+    tr.appendChild(td(money(r.price)));
+    tr.appendChild(td(r.reason||""));
+
+    tb.appendChild(tr);
+  }
+
+  if(cheapest){
+    document.getElementById("sumCheapest").textContent = cheapest.fwd + " (" + money(cheapest.price) + " €)";
+  }else{
+    document.getElementById("sumCheapest").textContent = "— (— €)";
+  }
+}
+
+function reset(){
+  document.getElementById("plz1").value="";
+  document.getElementById("w1").value="";
+  document.getElementById("plz2").value="";
+  document.getElementById("w2").value="";
+  document.getElementById("plz3").value="";
+  document.getElementById("w3").value="";
+  document.getElementById("cbBaustelle").checked=false;
+  document.getElementById("cbStop2").checked=false;
+  document.getElementById("cbStop3").checked=false;
+  document.getElementById("sumPlz").textContent="—";
+  document.getElementById("sumW").textContent="—";
+  document.getElementById("sumOpt").textContent="—";
+  document.getElementById("sumCheapest").textContent="—";
+  updateStopsUI();
+  updateCols();
+  renderEmptyTable();
+}
+
+function updateStopsUI(){
+  const use2 = document.getElementById("cbStop2").checked;
+  const use3 = document.getElementById("cbStop3").checked;
+  const row = document.getElementById("stopsRow");
+  row.style.display = (use2||use3) ? "" : "none";
+  document.getElementById("stop2Box").style.display = use2 ? "" : "none";
+  document.getElementById("stop3Box").style.display = use3 ? "" : "none";
+}
+
+// init
+document.getElementById("btnCalc").addEventListener("click", ()=>{
+  try{ calc(); }catch(e){ showErr(String(e.message||e)); }
+});
+document.getElementById("btnReset").addEventListener("click", reset);
+document.getElementById("cbStop2").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
+document.getElementById("cbStop3").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
+document.getElementById("cbBaustelle").addEventListener("change", updateCols);
+
+loadAll().catch(e=>showErr(String(e.message||e)));
+</script>
+</body>
+</html>

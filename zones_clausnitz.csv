@@ -1,0 +1,709 @@
+﻿Key;;;;
+Forwarder;Dest From;Dest To;Zone;Label
+Koch;1000;1999;1;de 01
+Koch;2000;2999;2;de 02
+Koch;3000;3999;3;de 03
+Koch;4000;4999;4;de 04
+Koch;6000;6999;5;de 06
+Koch;7000;7999;6;de 07
+Koch;8000;8999;7;de 08
+Koch;9000;9999;8;de 09
+Koch;10000;10999;9;de 10
+Koch;12000;12999;10;de 12
+Koch;13000;13999;11;de 13
+Koch;14000;14999;12;de 14
+Koch;15000;15999;13;de 15
+Koch;16000;16999;14;de 16
+Koch;17000;17999;15;de 17
+Koch;18000;18999;16;de 18
+Koch;19000;19999;17;de 19
+Koch;20000;20999;18;de 20
+Koch;21000;21999;19;de 21
+Koch;22000;22999;20;de 22
+Koch;23000;23999;21;de 23
+Koch;24000;24999;22;de 24
+Koch;25000;25999;23;de 25
+Koch;26000;26999;24;de 26
+Koch;27000;27999;25;de 27
+Koch;28000;28999;26;de 28
+Koch;29000;29999;27;de 29
+Koch;30000;30999;28;de 30
+Koch;31000;31999;29;de 31
+Koch;32000;32999;30;de 32
+Koch;33000;33999;31;de 33
+Koch;34000;34999;32;de 34
+Koch;35000;35999;33;de 35
+Koch;36000;36999;34;de 36
+Koch;37000;37999;35;de 37
+Koch;38000;38999;36;de 38
+Koch;39000;39999;37;de 39
+Koch;40000;40999;38;de 40
+Koch;41000;41999;39;de 41
+Koch;42000;42999;40;de 42
+Koch;44000;44999;41;de 44
+Koch;45000;45999;42;de 45
+Koch;46000;46999;43;de 46
+Koch;47000;47999;44;de 47
+Koch;48000;48999;45;de 48
+Koch;49000;49999;46;de 49
+Koch;50000;50999;47;de 50
+Koch;51000;51999;48;de 51
+Koch;52000;52999;49;de 52
+Koch;53000;53999;50;de 53
+Koch;54000;54999;51;de 54
+Koch;55000;55999;52;de 55
+Koch;56000;56999;53;de 56
+Koch;57000;57999;54;de 57
+Koch;58000;58999;55;de 58
+Koch;59000;59999;56;de 59
+Koch;60000;60999;57;de 60
+Koch;61000;61999;58;de 61
+Koch;63000;63999;59;de 63
+Koch;64000;64999;60;de 64
+Koch;65000;65999;61;de 65
+Koch;66000;66999;62;de 66
+Koch;67000;67999;63;de 67
+Koch;68000;68999;64;de 68
+Koch;69000;69999;65;de 69
+Koch;70000;70999;66;de 70
+Koch;71000;71999;67;de 71
+Koch;72000;72999;68;de 72
+Koch;73000;73999;69;de 73
+Koch;74000;74999;70;de 74
+Koch;75000;75999;71;de 75
+Koch;76000;76999;72;de 76
+Koch;77000;77999;73;de 77
+Koch;78000;78999;74;de 78
+Koch;79000;79999;75;de 79
+Koch;80000;80999;76;de 80
+Koch;81000;81999;77;de 81
+Koch;82000;82999;78;de 82
+Koch;83000;83999;79;de 83
+Koch;84000;84999;80;de 84
+Koch;85000;85999;81;de 85
+Koch;86000;86999;82;de 86
+Koch;87000;87999;83;de 87
+Koch;88000;88999;84;de 88
+Koch;89000;89999;85;de 89
+Koch;90000;90999;86;de 90
+Koch;91000;91999;87;de 91
+Koch;92000;92999;88;de 92
+Koch;93000;93999;89;de 93
+Koch;94000;94999;90;de 94
+Koch;95000;95999;91;de 95
+Koch;96000;96999;92;de 96
+Koch;97000;97999;93;de 97
+Koch;98000;98999;94;de 98
+Koch;99000;99999;95;de 99
+Oelrich;1000;1999;1;de 01
+Oelrich;2000;2999;2;de 02
+Oelrich;3000;3999;3;de 03
+Oelrich;4000;4999;4;de 04
+Oelrich;6000;6999;5;de 06
+Oelrich;7000;7999;6;de 07
+Oelrich;8000;8999;7;de 08
+Oelrich;9000;9999;8;de 09
+Oelrich;10000;10999;9;de 10
+Oelrich;12000;12999;10;de 12
+Oelrich;13000;13999;11;de 13
+Oelrich;14000;14999;12;de 14
+Oelrich;15000;15999;13;de 15
+Oelrich;16000;16999;14;de 16
+Oelrich;17000;17999;15;de 17
+Oelrich;18000;18999;16;de 18
+Oelrich;19000;19999;17;de 19
+Oelrich;20000;20999;18;de 20
+Oelrich;21000;21999;19;de 21
+Oelrich;22000;22999;20;de 22
+Oelrich;23000;23999;21;de 23
+Oelrich;24000;24999;22;de 24
+Oelrich;25000;25999;23;de 25
+Oelrich;26000;26999;24;de 26
+Oelrich;27000;27999;25;de 27
+Oelrich;28000;28999;26;de 28
+Oelrich;29000;29999;27;de 29
+Oelrich;30000;30999;28;de 30
+Oelrich;31000;31999;29;de 31
+Oelrich;32000;32999;30;de 32
+Oelrich;33000;33999;31;de 33
+Oelrich;34000;34999;32;de 34
+Oelrich;35000;35999;33;de 35
+Oelrich;36000;36999;34;de 36
+Oelrich;37000;37999;35;de 37
+Oelrich;38000;38999;36;de 38
+Oelrich;39000;39999;37;de 39
+Oelrich;40000;40999;38;de 40
+Oelrich;41000;41999;39;de 41
+Oelrich;42000;42999;40;de 42
+Oelrich;44000;44999;41;de 44
+Oelrich;45000;45999;42;de 45
+Oelrich;46000;46999;43;de 46
+Oelrich;47000;47999;44;de 47
+Oelrich;48000;48999;45;de 48
+Oelrich;49000;49999;46;de 49
+Oelrich;50000;50999;47;de 50
+Oelrich;51000;51999;48;de 51
+Oelrich;52000;52999;49;de 52
+Oelrich;53000;53999;50;de 53
+Oelrich;54000;54999;51;de 54
+Oelrich;55000;55999;52;de 55
+Oelrich;56000;56999;53;de 56
+Oelrich;57000;57999;54;de 57
+Oelrich;58000;58999;55;de 58
+Oelrich;59000;59999;56;de 59
+Oelrich;60000;60999;57;de 60
+Oelrich;61000;61999;58;de 61
+Oelrich;63000;63999;59;de 63
+Oelrich;64000;64999;60;de 64
+Oelrich;65000;65999;61;de 65
+Oelrich;66000;66999;62;de 66
+Oelrich;67000;67999;63;de 67
+Oelrich;68000;68999;64;de 68
+Oelrich;69000;69999;65;de 69
+Oelrich;70000;70999;66;de 70
+Oelrich;71000;71999;67;de 71
+Oelrich;72000;72999;68;de 72
+Oelrich;73000;73999;69;de 73
+Oelrich;74000;74999;70;de 74
+Oelrich;75000;75999;71;de 75
+Oelrich;76000;76999;72;de 76
+Oelrich;77000;77999;73;de 77
+Oelrich;78000;78999;74;de 78
+Oelrich;79000;79999;75;de 79
+Oelrich;80000;80999;76;de 80
+Oelrich;81000;81999;77;de 81
+Oelrich;82000;82999;78;de 82
+Oelrich;83000;83999;79;de 83
+Oelrich;84000;84999;80;de 84
+Oelrich;85000;85999;81;de 85
+Oelrich;86000;86999;82;de 86
+Oelrich;87000;87999;83;de 87
+Oelrich;88000;88999;84;de 88
+Oelrich;89000;89999;85;de 89
+Oelrich;90000;90999;86;de 90
+Oelrich;91000;91999;87;de 91
+Oelrich;92000;92999;88;de 92
+Oelrich;93000;93999;89;de 93
+Oelrich;94000;94999;90;de 94
+Oelrich;95000;95999;91;de 95
+Oelrich;96000;96999;92;de 96
+Oelrich;97000;97999;93;de 97
+Oelrich;98000;98999;94;de 98
+Oelrich;99000;99999;95;de 99
+Sievert;1000;1999;1;de 01
+Sievert;2000;2999;2;de 02
+Sievert;3000;3999;3;de 03
+Sievert;4000;4999;4;de 04
+Sievert;6000;6999;5;de 06
+Sievert;7000;7999;6;de 07
+Sievert;8000;8999;7;de 08
+Sievert;9000;9999;8;de 09
+Sievert;10000;10999;9;de 10
+Sievert;12000;12999;10;de 12
+Sievert;13000;13999;11;de 13
+Sievert;14000;14999;12;de 14
+Sievert;15000;15999;13;de 15
+Sievert;16000;16999;14;de 16
+Sievert;17000;17999;15;de 17
+Sievert;18000;18999;16;de 18
+Sievert;19000;19999;17;de 19
+Sievert;20000;20999;18;de 20
+Sievert;21000;21999;19;de 21
+Sievert;22000;22999;20;de 22
+Sievert;23000;23999;21;de 23
+Sievert;24000;24999;22;de 24
+Sievert;25000;25999;23;de 25
+Sievert;26000;26999;24;de 26
+Sievert;27000;27999;25;de 27
+Sievert;28000;28999;26;de 28
+Sievert;29000;29999;27;de 29
+Sievert;30000;30999;28;de 30
+Sievert;31000;31999;29;de 31
+Sievert;32000;32999;30;de 32
+Sievert;33000;33999;31;de 33
+Sievert;34000;34999;32;de 34
+Sievert;35000;35999;33;de 35
+Sievert;36000;36999;34;de 36
+Sievert;37000;37999;35;de 37
+Sievert;38000;38999;36;de 38
+Sievert;39000;39999;37;de 39
+Sievert;40000;40999;38;de 40
+Sievert;41000;41999;39;de 41
+Sievert;42000;42999;40;de 42
+Sievert;44000;44999;41;de 44
+Sievert;45000;45999;42;de 45
+Sievert;46000;46999;43;de 46
+Sievert;47000;47999;44;de 47
+Sievert;48000;48999;45;de 48
+Sievert;49000;49999;46;de 49
+Sievert;50000;50999;47;de 50
+Sievert;51000;51999;48;de 51
+Sievert;52000;52999;49;de 52
+Sievert;53000;53999;50;de 53
+Sievert;54000;54999;51;de 54
+Sievert;55000;55999;52;de 55
+Sievert;56000;56999;53;de 56
+Sievert;57000;57999;54;de 57
+Sievert;58000;58999;55;de 58
+Sievert;59000;59999;56;de 59
+Sievert;60000;60999;57;de 60
+Sievert;61000;61999;58;de 61
+Sievert;63000;63999;59;de 63
+Sievert;64000;64999;60;de 64
+Sievert;65000;65999;61;de 65
+Sievert;66000;66999;62;de 66
+Sievert;67000;67999;63;de 67
+Sievert;68000;68999;64;de 68
+Sievert;69000;69999;65;de 69
+Sievert;70000;70999;66;de 70
+Sievert;71000;71999;67;de 71
+Sievert;72000;72999;68;de 72
+Sievert;73000;73999;69;de 73
+Sievert;74000;74999;70;de 74
+Sievert;75000;75999;71;de 75
+Sievert;76000;76999;72;de 76
+Sievert;77000;77999;73;de 77
+Sievert;78000;78999;74;de 78
+Sievert;79000;79999;75;de 79
+Sievert;80000;80999;76;de 80
+Sievert;81000;81999;77;de 81
+Sievert;82000;82999;78;de 82
+Sievert;83000;83999;79;de 83
+Sievert;84000;84999;80;de 84
+Sievert;85000;85999;81;de 85
+Sievert;86000;86999;82;de 86
+Sievert;87000;87999;83;de 87
+Sievert;88000;88999;84;de 88
+Sievert;89000;89999;85;de 89
+Sievert;90000;90999;86;de 90
+Sievert;91000;91999;87;de 91
+Sievert;92000;92999;88;de 92
+Sievert;93000;93999;89;de 93
+Sievert;94000;94999;90;de 94
+Sievert;95000;95999;91;de 95
+Sievert;96000;96999;92;de 96
+Sievert;97000;97999;93;de 97
+Sievert;98000;98999;94;de 98
+Sievert;99000;99999;95;de 99
+Hartmann;1000;1999;4;de 01
+Hartmann;2000;2999;5;de 02
+Hartmann;3000;3999;4;de 03
+Hartmann;4000;4999;4;de 04
+Hartmann;6000;6999;4;de 06
+Hartmann;7000;7999;4;de 07
+Hartmann;8000;8999;4;de 08
+Hartmann;9000;9999;4;de 09
+Hartmann;10000;10999;4;de 10
+Hartmann;11000;11999;4;de 11
+Hartmann;12000;12999;4;de 12
+Hartmann;13000;13999;4;de 13
+Hartmann;14000;14999;4;de 14
+Hartmann;15000;15999;4;de 15
+Hartmann;16000;16999;4;de 16
+Hartmann;17000;17999;5;de 17
+Hartmann;18000;18999;5;de 18
+Hartmann;19000;19999;4;de 19
+Hartmann;20000;20999;3;de 20
+Hartmann;21000;21999;3;de 21
+Hartmann;22000;22999;3;de 22
+Hartmann;23000;23999;3;de 23
+Hartmann;24000;24999;4;de 24
+Hartmann;25000;25999;4;de 25
+Hartmann;26000;26999;2;de 26
+Hartmann;27000;27999;2;de 27
+Hartmann;28000;28999;2;de 28
+Hartmann;29000;29999;3;de 29
+Hartmann;30000;30999;2;de 30
+Hartmann;31000;31999;2;de 31
+Hartmann;32000;32999;2;de 32
+Hartmann;33000;33999;2;de 33
+Hartmann;34000;34999;3;de 34
+Hartmann;35000;35999;3;de 35
+Hartmann;36000;36999;3;de 36
+Hartmann;37000;37999;3;de 37
+Hartmann;38000;38999;3;de 38
+Hartmann;39000;39999;3;de 39
+Hartmann;40000;40999;2;de 40
+Hartmann;41000;41999;2;de 41
+Hartmann;42000;42999;2;de 42
+Hartmann;44000;44999;2;de 44
+Hartmann;45000;45999;2;de 45
+Hartmann;46000;46999;2;de 46
+Hartmann;47000;47999;2;de 47
+Hartmann;48000;48999;1;de 48
+Hartmann;49000;49999;1;de 49
+Hartmann;50000;50999;3;de 50
+Hartmann;51000;51999;3;de 51
+Hartmann;52000;52999;3;de 52
+Hartmann;53000;53999;3;de 53
+Hartmann;54000;54999;3;de 54
+Hartmann;55000;55999;3;de 55
+Hartmann;56000;56999;3;de 56
+Hartmann;57000;57999;3;de 57
+Hartmann;58000;58999;2;de 58
+Hartmann;59000;59999;2;de 59
+Hartmann;60000;60999;3;de 60
+Hartmann;61000;61999;3;de 61
+Hartmann;63000;63999;3;de 63
+Hartmann;64000;64999;3;de 64
+Hartmann;65000;65999;3;de 65
+Hartmann;66000;66999;4;de 66
+Hartmann;67000;67999;4;de 67
+Hartmann;68000;68999;4;de 68
+Hartmann;69000;69999;4;de 69
+Hartmann;70000;70999;4;de 70
+Hartmann;71000;71999;4;de 71
+Hartmann;72000;72999;5;de 72
+Hartmann;73000;73999;5;de 73
+Hartmann;74000;74999;4;de 74
+Hartmann;75000;75999;4;de 75
+Hartmann;76000;76999;4;de 76
+Hartmann;77000;77999;5;de 77
+Hartmann;78000;78999;5;de 78
+Hartmann;79000;79999;5;de 79
+Hartmann;80000;80999;5;de 80
+Hartmann;81000;81999;5;de 81
+Hartmann;82000;82999;6;de 82
+Hartmann;83000;83999;6;de 83
+Hartmann;84000;84999;6;de 84
+Hartmann;85000;85999;5;de 85
+Hartmann;86000;86999;5;de 86
+Hartmann;87000;87999;6;de 87
+Hartmann;88000;88999;6;de 88
+Hartmann;89000;89999;5;de 89
+Hartmann;90000;90999;4;de 90
+Hartmann;91000;91999;4;de 91
+Hartmann;92000;92999;5;de 92
+Hartmann;93000;93999;5;de 93
+Hartmann;94000;94999;6;de 94
+Hartmann;95000;95999;4;de 95
+Hartmann;96000;96999;4;de 96
+Hartmann;97000;97999;4;de 97
+Hartmann;98000;98999;4;de 98
+Hartmann;99000;99999;4;de 99
+DB Schenker;1000;1999;1;de 01
+DB Schenker;2000;2999;2;de 02
+DB Schenker;3000;3999;3;de 03
+DB Schenker;4000;4999;4;de 04
+DB Schenker;6000;6999;5;de 06
+DB Schenker;7000;7999;6;de 07
+DB Schenker;8000;8999;7;de 08
+DB Schenker;9000;9999;8;de 09
+DB Schenker;10000;10999;9;de 10
+DB Schenker;12000;12999;10;de 12
+DB Schenker;13000;13999;11;de 13
+DB Schenker;14000;14999;12;de 14
+DB Schenker;15000;15999;13;de 15
+DB Schenker;16000;16999;14;de 16
+DB Schenker;17000;17999;15;de 17
+DB Schenker;18000;18999;16;de 18
+DB Schenker;19000;19999;17;de 19
+DB Schenker;20000;20999;18;de 20
+DB Schenker;21000;21999;19;de 21
+DB Schenker;22000;22999;20;de 22
+DB Schenker;23000;23999;21;de 23
+DB Schenker;24000;24999;22;de 24
+DB Schenker;25000;25999;23;de 25
+DB Schenker;26000;26999;24;de 26
+DB Schenker;27000;27999;25;de 27
+DB Schenker;28000;28999;26;de 28
+DB Schenker;29000;29999;27;de 29
+DB Schenker;30000;30999;28;de 30
+DB Schenker;31000;31999;29;de 31
+DB Schenker;32000;32999;30;de 32
+DB Schenker;33000;33999;31;de 33
+DB Schenker;34000;34999;32;de 34
+DB Schenker;35000;35999;33;de 35
+DB Schenker;36000;36999;34;de 36
+DB Schenker;37000;37999;35;de 37
+DB Schenker;38000;38999;36;de 38
+DB Schenker;39000;39999;37;de 39
+DB Schenker;40000;40999;38;de 40
+DB Schenker;41000;41999;39;de 41
+DB Schenker;42000;42999;40;de 42
+DB Schenker;44000;44999;41;de 44
+DB Schenker;45000;45999;42;de 45
+DB Schenker;46000;46999;43;de 46
+DB Schenker;47000;47999;44;de 47
+DB Schenker;48000;48999;45;de 48
+DB Schenker;49000;49999;46;de 49
+DB Schenker;50000;50999;47;de 50
+DB Schenker;51000;51999;48;de 51
+DB Schenker;52000;52999;49;de 52
+DB Schenker;53000;53999;50;de 53
+DB Schenker;54000;54999;51;de 54
+DB Schenker;55000;55999;52;de 55
+DB Schenker;56000;56999;53;de 56
+DB Schenker;57000;57999;54;de 57
+DB Schenker;58000;58999;55;de 58
+DB Schenker;59000;59999;56;de 59
+DB Schenker;60000;60999;57;de 60
+DB Schenker;61000;61999;58;de 61
+DB Schenker;63000;63999;59;de 63
+DB Schenker;64000;64999;60;de 64
+DB Schenker;65000;65999;61;de 65
+DB Schenker;66000;66999;62;de 66
+DB Schenker;67000;67999;63;de 67
+DB Schenker;68000;68999;64;de 68
+DB Schenker;69000;69999;65;de 69
+DB Schenker;70000;70999;66;de 70
+DB Schenker;71000;71999;67;de 71
+DB Schenker;72000;72999;68;de 72
+DB Schenker;73000;73999;69;de 73
+DB Schenker;74000;74999;70;de 74
+DB Schenker;75000;75999;71;de 75
+DB Schenker;76000;76999;72;de 76
+DB Schenker;77000;77999;73;de 77
+DB Schenker;78000;78999;74;de 78
+DB Schenker;79000;79999;75;de 79
+DB Schenker;80000;80999;76;de 80
+DB Schenker;81000;81999;77;de 81
+DB Schenker;82000;82999;78;de 82
+DB Schenker;83000;83999;79;de 83
+DB Schenker;84000;84999;80;de 84
+DB Schenker;85000;85999;81;de 85
+DB Schenker;86000;86999;82;de 86
+DB Schenker;87000;87999;83;de 87
+DB Schenker;88000;88999;84;de 88
+DB Schenker;89000;89999;85;de 89
+DB Schenker;90000;90999;86;de 90
+DB Schenker;91000;91999;87;de 91
+DB Schenker;92000;92999;88;de 92
+DB Schenker;93000;93999;89;de 93
+DB Schenker;94000;94999;90;de 94
+DB Schenker;95000;95999;91;de 95
+DB Schenker;96000;96999;92;de 96
+DB Schenker;97000;97999;93;de 97
+DB Schenker;98000;98999;94;de 98
+DB Schenker;99000;99999;95;de 99
+Berghegger;1000;1999;1;de 01
+Berghegger;2000;2999;2;de 02
+Berghegger;3000;3999;3;de 03
+Berghegger;4000;4999;4;de 04
+Berghegger;6000;6999;5;de 06
+Berghegger;7000;7999;6;de 07
+Berghegger;8000;8999;7;de 08
+Berghegger;9000;9999;8;de 09
+Berghegger;10000;10999;9;de 10
+Berghegger;12000;12999;10;de 12
+Berghegger;13000;13999;11;de 13
+Berghegger;14000;14999;12;de 14
+Berghegger;15000;15999;13;de 15
+Berghegger;16000;16999;14;de 16
+Berghegger;17000;17999;15;de 17
+Berghegger;18000;18999;16;de 18
+Berghegger;19000;19999;17;de 19
+Berghegger;20000;20999;18;de 20
+Berghegger;21000;21999;19;de 21
+Berghegger;22000;22999;20;de 22
+Berghegger;23000;23999;21;de 23
+Berghegger;24000;24999;22;de 24
+Berghegger;25000;25999;23;de 25
+Berghegger;26000;26099;24;de 26
+Berghegger;26100;26199;25;de 261
+Berghegger;26200;26299;26;de 262
+Berghegger;26300;26399;27;de 263
+Berghegger;26400;26499;28;de 264
+Berghegger;26500;26599;29;de 265
+Berghegger;26600;26699;30;de 266
+Berghegger;26700;26799;31;de 267
+Berghegger;26800;26899;32;de 268
+Berghegger;26900;26999;33;de 269
+Berghegger;27200;27299;34;de 272
+Berghegger;27300;27399;35;de 273
+Berghegger;27400;27499;36;de 274
+Berghegger;27500;27599;37;de 275
+Berghegger;27600;27699;38;de 276
+Berghegger;27700;27799;39;de 277
+Berghegger;27800;27899;40;de 278
+Berghegger;28000;28999;41;de 28
+Berghegger;29000;29999;42;de 29
+Berghegger;30000;30999;43;de 30
+Berghegger;31000;31999;44;de 31
+Berghegger;32000;32999;45;de 32
+Berghegger;33000;33999;46;de 33
+Berghegger;34000;34999;47;de 34
+Berghegger;35000;35999;48;de 35
+Berghegger;36000;36999;49;de 36
+Berghegger;37000;37999;50;de 37
+Berghegger;38000;38999;51;de 38
+Berghegger;39000;39999;52;de 39
+Berghegger;40000;40999;53;de 40
+Berghegger;41000;41999;54;de 41
+Berghegger;42000;42999;55;de 42
+Berghegger;44000;44999;56;de 44
+Berghegger;45000;45999;57;de 45
+Berghegger;46000;46999;58;de 46
+Berghegger;47000;47999;59;de 47
+Berghegger;48000;48999;60;de 48
+Berghegger;49000;49999;61;de 49
+Berghegger;50000;50999;62;de 50
+Berghegger;51000;51999;63;de 51
+Berghegger;52000;52999;64;de 52
+Berghegger;53000;53999;65;de 53
+Berghegger;54000;54999;66;de 54
+Berghegger;55000;55999;67;de 55
+Berghegger;56000;56999;68;de 56
+Berghegger;57000;57999;69;de 57
+Berghegger;58000;58999;70;de 58
+Berghegger;59000;59999;71;de 59
+Berghegger;60000;60999;72;de 60
+Berghegger;61000;61999;73;de 61
+Berghegger;63000;63999;74;de 63
+Berghegger;64000;64999;75;de 64
+Berghegger;65000;65999;76;de 65
+Berghegger;66000;66999;77;de 66
+Berghegger;67000;67999;78;de 67
+Berghegger;68000;68999;79;de 68
+Berghegger;69000;69999;80;de 69
+Berghegger;70000;70999;81;de 70
+Berghegger;71000;71999;82;de 71
+Berghegger;72000;72999;83;de 72
+Berghegger;73000;73999;84;de 73
+Berghegger;74000;74999;85;de 74
+Berghegger;75000;75999;86;de 75
+Berghegger;76000;76999;87;de 76
+Berghegger;77000;77999;88;de 77
+Berghegger;78000;78999;89;de 78
+Berghegger;79000;79999;90;de 79
+Berghegger;80000;80999;91;de 80
+Berghegger;81000;81999;92;de 81
+Berghegger;82000;82999;93;de 82
+Berghegger;83000;83999;94;de 83
+Berghegger;84000;84999;95;de 84
+Berghegger;85000;85999;96;de 85
+Berghegger;86000;86999;97;de 86
+Berghegger;87000;87999;98;de 87
+Berghegger;88000;88999;99;de 88
+Berghegger;89000;89999;100;de 89
+Berghegger;90000;90999;101;de 90
+Berghegger;91000;91999;102;de 91
+Berghegger;92000;92999;103;de 92
+Berghegger;93000;93999;104;de 93
+Berghegger;94000;94999;105;de 94
+Berghegger;95000;95999;106;de 95
+Berghegger;96000;96999;107;de 96
+Berghegger;97000;97999;108;de 97
+Berghegger;98000;98999;109;de 98
+Berghegger;99000;99999;110;de 99
+Böckmann;1000;1999;1;de 01
+Böckmann;2000;2999;2;de 02
+Böckmann;3000;3999;3;de 03
+Böckmann;4000;4999;4;de 04
+Böckmann;6000;6999;5;de 06
+Böckmann;7000;7999;6;de 07
+Böckmann;8000;8999;7;de 08
+Böckmann;9000;9999;8;de 09
+Böckmann;10000;10999;9;de 10
+Böckmann;12000;12999;10;de 12
+Böckmann;13000;13999;11;de 13
+Böckmann;14000;14999;12;de 14
+Böckmann;15000;15999;13;de 15
+Böckmann;16000;16999;14;de 16
+Böckmann;17000;17999;15;de 17
+Böckmann;18000;18999;16;de 18
+Böckmann;19000;19999;17;de 19
+Böckmann;20000;20999;18;de 20
+Böckmann;21000;21999;19;de 21
+Böckmann;22000;22999;20;de 22
+Böckmann;23000;23999;21;de 23
+Böckmann;24000;24999;22;de 24
+Böckmann;25000;25999;23;de 25
+Böckmann;26000;26699;24;de 261 - 266
+Böckmann;26700;26999;25;de 267 - 269
+Böckmann;27000;27399;97;de 270 - 273
+Böckmann;27400;27699;98;de 274 - 276
+Böckmann;27700;27776;97;de 277 - 27776
+Böckmann;27777;27777;96;de 27777
+Böckmann;27778;27999;98;de 27778 - 27999
+Böckmann;28000;28999;26;de 28
+Böckmann;29000;29999;27;de 29
+Böckmann;30000;30999;28;de 30
+Böckmann;31000;31999;29;de 31
+Böckmann;32000;32999;30;de 32
+Böckmann;33000;33199;31;de 33
+Böckmann;33200;33999;99;de 332 - 339
+Böckmann;34000;34999;32;de 34
+Böckmann;35000;35999;33;de 35
+Böckmann;36000;36999;34;de 36
+Böckmann;37000;37999;35;de 37
+Böckmann;38000;38999;36;de 38
+Böckmann;39000;39999;37;de 39
+Böckmann;40000;40999;38;de 40
+Böckmann;41000;41999;39;de 41
+Böckmann;42000;42999;40;de 42
+Böckmann;44000;44999;41;de 44
+Böckmann;45000;45999;42;de 45
+Böckmann;46000;46999;43;de 46
+Böckmann;47000;47999;44;de 47
+Böckmann;48000;48599;45;de 48
+Böckmann;48600;48999;100;de 486 - 489
+Böckmann;49000;49392;46;de 49
+Böckmann;49393;49393;103;de 49393
+Böckmann;49394;49400;46;de 49
+Böckmann;49401;49401;104;de 49401
+Böckmann;49402;49412;46;de 49
+Böckmann;49413;49413;105;de 49413
+Böckmann;49414;49433;46;de 49
+Böckmann;49434;49434;106;de 49434
+Böckmann;49435;49438;46;de 49
+Böckmann;49439;49439;107;de 49439
+Böckmann;49440;49450;46;de 49
+Böckmann;49451;49451;108;de 49451
+Böckmann;49452;49595;46;de 49
+Böckmann;49596;49596;109;de 49596
+Böckmann;49597;49634;46;de 49
+Böckmann;49635;49635;110;de 49635
+Böckmann;49636;49699;46;de 49
+Böckmann;49700;49999;101;de 497 - 499
+Böckmann;50000;50999;47;de 50
+Böckmann;51000;51999;48;de 51
+Böckmann;52000;52999;49;de 52
+Böckmann;53000;53226;50;de 53
+Böckmann;53227;53227;102;de 53
+Böckmann;53228;53999;50;de 53
+Böckmann;54000;54999;51;de 54
+Böckmann;55000;55999;52;de 55
+Böckmann;56000;56999;53;de 56
+Böckmann;57000;57999;54;de 57
+Böckmann;58000;58999;55;de 58
+Böckmann;59000;59999;56;de 59
+Böckmann;60000;60999;57;de 60
+Böckmann;61000;61999;58;de 61
+Böckmann;63000;63999;59;de 63
+Böckmann;64000;64999;60;de 64
+Böckmann;65000;65999;61;de 65
+Böckmann;66000;66999;62;de 66
+Böckmann;67000;67999;63;de 67
+Böckmann;68000;68999;64;de 68
+Böckmann;69000;69999;65;de 69
+Böckmann;70000;70999;66;de 70
+Böckmann;71000;71999;67;de 71
+Böckmann;72000;72999;68;de 72
+Böckmann;73000;73999;69;de 73
+Böckmann;74000;74999;70;de 74
+Böckmann;75000;75999;71;de 75
+Böckmann;76000;76999;72;de 76
+Böckmann;77000;77999;73;de 77
+Böckmann;78000;78999;74;de 78
+Böckmann;79000;79999;75;de 79
+Böckmann;80000;80999;76;de 80
+Böckmann;81000;81999;77;de 81
+Böckmann;82000;82999;78;de 82
+Böckmann;83000;83999;79;de 83
+Böckmann;84000;84999;80;de 84
+Böckmann;85000;85999;81;de 85
+Böckmann;86000;86999;82;de 86
+Böckmann;87000;87999;83;de 87
+Böckmann;88000;88999;84;de 88
+Böckmann;89000;89999;85;de 89
+Böckmann;90000;90999;86;de 90
+Böckmann;91000;91999;87;de 91
+Böckmann;92000;92999;88;de 92
+Böckmann;93000;93999;89;de 93
+Böckmann;94000;94999;90;de 94
+Böckmann;95000;95999;91;de 95
+Böckmann;96000;96999;92;de 96
+Böckmann;97000;97999;93;de 97
+Böckmann;98000;98999;94;de 98
+Böckmann;99000;99999;95;de 99
