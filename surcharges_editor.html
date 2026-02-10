@@ -1,95 +1,121 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Zuschläge Editor – Gerwing Steinwerke</title>
-<style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:0;background:#f4f7f9;color:#0b2230;}
-.container{max-width:1100px;margin:28px auto;padding:0 20px;}
-h1{margin:0 0 18px;color:#0a5b7a;}
-.card{background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:20px;}
-.btn{display:inline-block;background:#0a5b7a;color:#fff;border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer;}
-.btn.secondary{background:#fff;color:#0a5b7a;border:1px solid #0a5b7a;}
-.table{width:100%;border-collapse:collapse;margin-top:14px;}
-.table th{background:#0a5b7a;color:#fff;text-align:left;padding:10px;}
-.table td{padding:10px;border-bottom:1px solid #e6eef2;}
-.notice{background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:12px;margin:12px 0;}
-.error{background:#f8d7da;border:1px solid #f1aeb5;border-radius:10px;padding:12px;margin:12px 0;display:none;}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Zuschläge Editor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{background:#f4f7f9}
+    .brand{color:#0a5b7a;font-weight:900}
+    .card{border-radius:16px; box-shadow:0 6px 24px rgba(0,0,0,.08);}
+    .btn-primary{background:#0a5b7a;border-color:#0a5b7a;font-weight:800;border-radius:12px}
+  </style>
 </head>
 <body>
-<div class="container">
-  <h1>Zuschläge Editor – Gerwing Steinwerke</h1>
-  <div class="card">
-    <div class="notice">Diese Seite lädt <code>surcharges_&lt;werk&gt;.json</code> (oder Fallback) und erstellt eine neue Datei als Download. Danach die JSON im Repo ersetzen und committen.</div>
-    <button class="btn" id="btnLoad">Neu laden</button>
-    <button class="btn secondary" id="btnDownload">JSON herunterladen</button>
-    <span id="meta" style="margin-left:10px;color:#4b5b65;"></span>
-    <div class="error" id="err"></div>
-    <table class="table" id="tbl" style="display:none;">
-      <thead><tr><th>Spediteur</th><th>Wert</th></tr></thead>
-      <tbody></tbody>
-    </table>
+<div class="container py-4" style="max-width:1200px">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+    <div>
+      <h1 class="h3 brand mb-1">Zuschläge Editor</h1>
+      <div class="text-muted">Baustelle / 2. Stopp / 3. Stopp bearbeiten und JSON herunterladen.</div>
+    </div>
+    <a class="btn btn-outline-secondary" href="index.html">Zurück</a>
+  </div>
+
+  <div class="card p-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label fw-bold">Werk</label>
+        <select id="werk" class="form-select">
+          <option value="holdorf">Holdorf</option>
+          <option value="clausnitz">Clausnitz</option>
+        </select>
+      </div>
+      <div class="col-md-8 d-flex gap-2">
+        <button id="btnLoad" class="btn btn-primary">Laden</button>
+        <button id="btnDl" class="btn btn-outline-secondary">Download surcharges_*.json</button>
+      </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Spediteur</th>
+            <th style="width:220px">Baustelle (€)</th>
+            <th style="width:220px">2. Stopp (€)</th>
+            <th style="width:220px">3. Stopp (€)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<script src="common.js"></script>
 <script>
-const params=new URLSearchParams(location.search);
-const WERK=(params.get('werk')||'').toLowerCase();
-function fileCandidates(){
-  const cand=[];
-  if(WERK) cand.push('surcharges_'+WERK+'.json');
-  cand.push('surcharges.json');
-  return cand;
+let DATA=null;
+
+function dl(filename, text){
+  const blob = new Blob([text], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
 }
-async function fetchFirstExisting(candidates){
-  let last=null;
-  for(const f of candidates){
-    try{ const r=await fetch(f,{cache:'no-store'}); if(r.ok) return {name:f, text: await r.text()}; last=new Error(f+': HTTP '+r.status); }
-    catch(e){ last=e; }
-  }
-  throw last||new Error('Datei nicht gefunden');
-}
-function showError(msg){ const e=document.getElementById('err'); e.style.display='block'; e.textContent=msg; }
-function clearError(){ const e=document.getElementById('err'); e.style.display='none'; e.textContent=''; }
-let DATA={};
-let FILE_NAME='';
-function render(){ 
-  const tbl=document.getElementById('tbl'); 
-  const tb=tbl.querySelector('tbody'); tb.innerHTML='';
-  const keys=Object.keys(DATA).sort((a,b)=>a.localeCompare(b,'de'));
-  for(const k of keys){
-    const tr=document.createElement('tr');
-    const td1=document.createElement('td'); td1.textContent=k;
-    const td2=document.createElement('td');
-    const inp=document.createElement('input'); inp.type='number'; inp.step='0.01'; inp.value=String(DATA[k]??'');
-    inp.style.width='140px';
-    inp.addEventListener('input',()=>{ DATA[k]=Number(inp.value); });
-    td2.appendChild(inp);
-    tr.appendChild(td1); tr.appendChild(td2);
-    tb.appendChild(tr);
-  }
-  tbl.style.display='table';
-}
+
 async function load(){
-  clearError();
-  try{
-    const r=await fetchFirstExisting(fileCandidates());
-    FILE_NAME = r.name;
-    DATA = JSON.parse(r.text||'{}');
-    document.getElementById('meta').textContent = `Werk: ${WERK||'—'} • Datei: ${FILE_NAME} • Spediteure: ${Object.keys(DATA).length}`;
-    render();
-  }catch(e){ showError(String(e)); }
+  const werk = document.getElementById("werk").value;
+  const surFile = `surcharges_${werk}.json`;
+  const zonesFile = `zones_${werk}.csv`;
+  const ratesFile = `rates_${werk}.csv`;
+  const [sTxt, zTxt, rTxt] = await Promise.all([fetchText(surFile), fetchText(zonesFile), fetchText(ratesFile)]);
+  const sur = JSON.parse(sTxt);
+  const zones = buildZones(parseCsv(zTxt));
+  const rates = buildRates(parseCsv(rTxt));
+  const forwarders = [...new Set([...zones.keys()].filter(x=>rates.has(x)))].sort((a,b)=>a.localeCompare(b,"de"));
+  DATA={werk, sur, forwarders};
+  render();
 }
-function download(){
-  const name = (WERK? 'surcharges_'+WERK+'.json' : 'surcharges.json');
-  const blob=new Blob([JSON.stringify(DATA,null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
+
+function render(){
+  const tbody=document.getElementById("tbody");
+  tbody.innerHTML="";
+  for(const f of DATA.forwarders){
+    const b = DATA.sur.baustelle?.[f] ?? 0;
+    const s2 = DATA.sur.stop2?.[f] ?? 0;
+    const s3 = DATA.sur.stop3?.[f] ?? 0;
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${f}</td>
+      <td><input class="form-control" data-k="baustelle" data-f="${f}" value="${b}"></td>
+      <td><input class="form-control" data-k="stop2" data-f="${f}" value="${s2}"></td>
+      <td><input class="form-control" data-k="stop3" data-f="${f}" value="${s3}"></td>
+    `;
+    tbody.appendChild(tr);
+  }
 }
-document.getElementById('btnLoad').addEventListener('click',load);
-document.getElementById('btnDownload').addEventListener('click',download);
-load();
+
+document.getElementById("btnLoad").addEventListener("click", async ()=>{
+  try{ await load(); }catch(e){ alert(e.message||String(e)); }
+});
+
+document.getElementById("btnDl").addEventListener("click", ()=>{
+  if(!DATA){ alert("Bitte zuerst laden."); return; }
+  const out={baustelle:{}, stop2:{}, stop3:{}};
+  const inputs=[...document.querySelectorAll("input[data-k]")];
+  for(const inp of inputs){
+    const k = inp.getAttribute("data-k");
+    const f = inp.getAttribute("data-f");
+    const n = parseEuro(inp.value); // handles comma etc
+    out[k][f] = Number.isFinite(n) ? n : 0;
+  }
+  dl(`surcharges_${DATA.werk}.json`, JSON.stringify(out, null, 2));
+});
 </script>
 </body>
 </html>
