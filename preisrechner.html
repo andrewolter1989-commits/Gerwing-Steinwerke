@@ -441,9 +441,8 @@ function findRate(forwarder, zone, weight){
       return { ok:false, reason:`Kein Preis für Zone ${zn}` };
     }
 function getFloaterPct(forwarder){
-  const v = FLOATERS[forwarder];
- diff --git a/preisrechner.html b/preisrechner.html
-index 2642019e67492c267ec3d7696bba9b05b09a3105..a24b886d1e00ea8fd6f5daca2c918be9ec62d751 100644
+  diff --git a/preisrechner.html b/preisrechner.html
+index 2642019e67492c267ec3d7696bba9b05b09a3105..6c3472666736e818ab1adcb733010e5594261a07 100644
 --- a/preisrechner.html
 +++ b/preisrechner.html
 @@ -445,99 +445,104 @@ function getFloaterPct(forwarder){
@@ -528,8 +527,8 @@ index 2642019e67492c267ec3d7696bba9b05b09a3105..a24b886d1e00ea8fd6f5daca2c918be9
    const stops = [{plz:plz1, w:w}];
 -  if (cbStop2.checked) stops.push({plz:plz2, w:w2});
 -  if (cbStop3.checked) stops.push({plz:plz3, w:w3});
-+  if (use2) stops.push({plz:plz2, w:w2});
-+  if (use3) stops.push({plz:plz3, w:w3});
++  if (use2 && (plz2 || w2 > 0)) stops.push({plz:plz2, w:w2});
++  if (use3 && (plz3 || w3 > 0)) stops.push({plz:plz3, w:w3});
    const totalW = stops.reduce((a,s)=>a + (Number(s.w)||0), 0);
 +  document.getElementById("sumW").textContent = totalW.toLocaleString("de-DE");
 +  document.getElementById("sumOpt").textContent = options.length ? options.join(", ") : "—";
