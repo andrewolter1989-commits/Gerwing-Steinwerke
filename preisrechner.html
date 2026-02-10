@@ -442,202 +442,151 @@ function findRate(forwarder, zone, weight){
     }
 function getFloaterPct(forwarder){
   const v = FLOATERS[forwarder];
-  const n = parseNumDE(v);
-  return Number.isFinite(n) ? n : 0;
-}
-function getSurch(forwarder){
-  const obj = SURCH[forwarder] || {};
-  return {
-    baustelle: Number.isFinite(parseNumDE(obj.baustelle)) ? parseNumDE(obj.baustelle) : 0,
-    stop2: Number.isFinite(parseNumDE(obj.stop2)) ? parseNumDE(obj.stop2) : 0,
-    stop3: Number.isFinite(parseNumDE(obj.stop3)) ? parseNumDE(obj.stop3) : 0,
-  };
-}
-
-// ---------- calc ----------
-function readInputs(){
-  const plz1 = document.getElementById("plz1").value.trim();
-  const w1 = document.getElementById("w1").value.trim();
-
-  const applyBaz = document.getElementById("cbBaustelle").checked;
-  const use2 = document.getElementById("cbStop2").checked;
-  const use3 = document.getElementById("cbStop3").checked;
-
-  const plz2 = document.getElementById("plz2").value.trim();
-  const w2 = document.getElementById("w2").value.trim();
-  const plz3 = document.getElementById("plz3").value.trim();
-  const w3 = document.getElementById("w3").value.trim();
-
-  if(!isPLZ(plz1)) throw new Error("PLZ muss 5-stellig sein.");
-  const w = parseNumDE(w1);
-  if(!Number.isFinite(w) || w<=0) throw new Error("Gewicht muss > 0 sein.");
-
-  if(use2){
-    if(plz2 && !isPLZ(plz2)) throw new Error("PLZ 2 muss 5-stellig sein (oder leer).");
-    if(w2 && !(parseNumDE(w2)>0)) throw new Error("Gewicht 2 muss > 0 sein (oder leer).");
-  }
-  if(use3){
-    if(plz3 && !isPLZ(plz3)) throw new Error("PLZ 3 muss 5-stellig sein (oder leer).");
-    if(w3 && !(parseNumDE(w3)>0)) throw new Error("Gewicht 3 muss > 0 sein (oder leer).");
-  }
-
-  return {plz1, w, applyBaz, use2, use3};
-}
-
-function updateCols(){
-  const applyBaz = document.getElementById("cbBaustelle").checked;
-  const use2 = document.getElementById("cbStop2").checked;
-  const use3 = document.getElementById("cbStop3").checked;
-  document.querySelectorAll(".colBaustelle").forEach(el=>el.classList.toggle("d-none", !applyBaz));
-  document.querySelectorAll(".colStop2").forEach(el=>el.classList.toggle("d-none", !use2));
-  document.querySelectorAll(".colStop3").forEach(el=>el.classList.toggle("d-none", !use3));
-}
-
-function calc(){
-  updateCols();
-  document.getElementById("errBox").classList.add("d-none");
-  const tb=document.getElementById("tbody");
-  tb.innerHTML = "";
-
-  const {plz1, w, applyBaz, use2, use3} = readInputs();
-
-  const options = [];
-  if(applyBaz) options.push("Baustelle");
-  if(use2) options.push("2. Stopp");
-  if(use3) options.push("3. Stopp");
-  document.getElementById("sumPlz").textContent = plz1;
-  const totalW = w + (use2 ? w2 : 0) + (use3 ? w3 : 0);
-    document.getElementById("sumW").textContent = totalW.toLocaleString("de-DE");
-  document.getElementById("sumOpt").textContent = options.length ? options.join(", ") : "—";
-  // totals & stop details
-  const stops = [{plz:plz1, w:w}];
-  if (cbStop2.checked) stops.push({plz:plz2, w:w2});
-  if (cbStop3.checked) stops.push({plz:plz3, w:w3});
-  const totalW = stops.reduce((a,s)=>a + (Number(s.w)||0), 0);
-  const stopCount = stops.length;
-  const hasBaustelle = cbBaustelle.checked;
-  document.getElementById("sumTotals").textContent = `${totalW.toLocaleString("de-DE")} kg / ${stopCount} Stop${stopCount===1?"":"ps"} / ${hasBaustelle?"Baustellentour":"Standard"}`;
-  document.getElementById("sumStops").textContent = stops.map((s,i)=>`PLZ${i+1}: ${s.plz || "—"} / Gewicht${i+1}: ${(Number(s.w)||0).toLocaleString("de-DE")} kg`).join(" | ");
-  document.getElementById("sumCheapest").textContent = "—";
-
-  // exclusions like old project (can be adjusted)
-  const excludeBaustelle = new Set(["Koch", "DB Schenker", "Hartmann", "Sievert", "Berghegger", "Elvis"]);
-  const excludeStop2 = new Set(["Koch"]);
-  const excludeStop3 = new Set(["Koch"]);
-
-  let cheapest = null; // {fwd, price}
-
-  const rowsOut = [];
-
-  for(const fwd of FORWARDERS){
-    let zone = findZone(fwd, plz1);
-    let base = null, reason="";
-
-    if(zone==null){
-      reason = "PLZ nicht in Zone";
-    }else{
-      const rate = findRate(fwd, zone, w);
-      base = rate.value;
-      reason = rate.reason;
-      if(base==null) zone = zone; // keep
-    }
-
-    // surcharges
-    const s = getSurch(fwd);
-    const baz = (applyBaz && !excludeBaustelle.has(fwd)) ? s.baustelle : 0;
-    const baz2 = (use2 && !excludeStop2.has(fwd)) ? s.stop2 : 0;
-    const baz3 = (use3 && !excludeStop3.has(fwd)) ? s.stop3 : 0;
-
-    // if excluded but selected -> mark as not available
-    let blocked = false;
-    if(applyBaz && excludeBaustelle.has(fwd)){ blocked = true; reason = "Keine Baustellenzustellung"; }
-    if(use2 && excludeStop2.has(fwd)){ blocked = true; reason = "Kein 2. Stopp"; }
-    if(use3 && excludeStop3.has(fwd)){ blocked = true; reason = "Kein 3. Stopp"; }
-
-    let floPct = getFloaterPct(fwd);
-    let floEur = null, price = null;
-
-    if(!blocked && Number.isFinite(base)){
-      floEur = base * (floPct/100);
-      price = base + floEur + baz + baz2 + baz3;
-      if(cheapest==null || price < cheapest.price){
-        cheapest = {fwd, price};
-      }
-    }else{
-      base = null;
-    }
-
-    rowsOut.push({fwd, zone, base, baz, baz2, baz3, floPct, floEur, price, reason});
-  }
-
-  // render
-  for(const r of rowsOut){
-    const tr=document.createElement("tr");
-    if(cheapest && r.fwd===cheapest.fwd) tr.classList.add("cheapest");
-
-    const td = (v)=>{ const x=document.createElement("td"); x.textContent=v; return x; };
-
-    tr.appendChild(td(r.fwd));
-    tr.appendChild(td(r.zone==null ? "—" : String(r.zone)));
-    tr.appendChild(td(money(r.base)));
-
-    const tdBaz=td(money(r.baz)); tdBaz.classList.add("colBaustelle"); if(!applyBaz) tdBaz.classList.add("d-none"); tr.appendChild(tdBaz);
-    const tdB2=td(money(r.baz2)); tdB2.classList.add("colStop2"); if(!use2) tdB2.classList.add("d-none"); tr.appendChild(tdB2);
-    const tdB3=td(money(r.baz3)); tdB3.classList.add("colStop3"); if(!use3) tdB3.classList.add("d-none"); tr.appendChild(tdB3);
-
-    tr.appendChild(td(pct(r.floPct)));
-    tr.appendChild(td(money(r.floEur)));
-    tr.appendChild(td(money(r.price)));
-    tr.appendChild(td(r.reason||""));
-
-    tb.appendChild(tr);
-  }
-
-  if(cheapest){
-    document.getElementById("sumCheapest").textContent = cheapest.fwd + " (" + money(cheapest.price) + " €)";
-  }else{
-    document.getElementById("sumCheapest").textContent = "— (— €)";
-  }
-}
-
-function reset(){
-  document.getElementById("plz1").value="";
-  document.getElementById("w1").value="";
-  document.getElementById("plz2").value="";
-  document.getElementById("w2").value="";
-  document.getElementById("plz3").value="";
-  document.getElementById("w3").value="";
-  document.getElementById("cbBaustelle").checked=false;
-  document.getElementById("cbStop2").checked=false;
-  document.getElementById("cbStop3").checked=false;
-  document.getElementById("sumPlz").textContent="—";
-  document.getElementById("sumW").textContent="—";
-  document.getElementById("sumOpt").textContent="—";
-  document.getElementById("sumCheapest").textContent="—";
-  updateStopsUI();
-  updateCols();
-  renderEmptyTable();
-}
-
-function updateStopsUI(){
-  const use2 = document.getElementById("cbStop2").checked;
-  const use3 = document.getElementById("cbStop3").checked;
-  const row = document.getElementById("stopsRow");
-  row.style.display = (use2||use3) ? "" : "none";
-  document.getElementById("stop2Box").style.display = use2 ? "" : "none";
-  document.getElementById("stop3Box").style.display = use3 ? "" : "none";
-}
-
-// init
-document.getElementById("btnCalc").addEventListener("click", ()=>{
-  try{ calc(); }catch(e){ showErr(String(e.message||e)); }
-});
-document.getElementById("btnReset").addEventListener("click", reset);
-document.getElementById("cbStop2").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
-document.getElementById("cbStop3").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
-document.getElementById("cbBaustelle").addEventListener("change", updateCols);
-
-loadAll().catch(e=>showErr(String(e.message||e)));
-</script>
-</body>
-</html>
+ diff --git a/preisrechner.html b/preisrechner.html
+index 2642019e67492c267ec3d7696bba9b05b09a3105..a24b886d1e00ea8fd6f5daca2c918be9ec62d751 100644
+--- a/preisrechner.html
++++ b/preisrechner.html
+@@ -445,99 +445,104 @@ function getFloaterPct(forwarder){
+   const n = parseNumDE(v);
+   return Number.isFinite(n) ? n : 0;
+ }
+ function getSurch(forwarder){
+   const obj = SURCH[forwarder] || {};
+   return {
+     baustelle: Number.isFinite(parseNumDE(obj.baustelle)) ? parseNumDE(obj.baustelle) : 0,
+     stop2: Number.isFinite(parseNumDE(obj.stop2)) ? parseNumDE(obj.stop2) : 0,
+     stop3: Number.isFinite(parseNumDE(obj.stop3)) ? parseNumDE(obj.stop3) : 0,
+   };
+ }
+ 
+ // ---------- calc ----------
+ function readInputs(){
+   const plz1 = document.getElementById("plz1").value.trim();
+   const w1 = document.getElementById("w1").value.trim();
+ 
+   const applyBaz = document.getElementById("cbBaustelle").checked;
+   const use2 = document.getElementById("cbStop2").checked;
+   const use3 = document.getElementById("cbStop3").checked;
+ 
+   const plz2 = document.getElementById("plz2").value.trim();
+   const w2 = document.getElementById("w2").value.trim();
+   const plz3 = document.getElementById("plz3").value.trim();
+   const w3 = document.getElementById("w3").value.trim();
++  const w2Num = parseNumDE(w2);
++  const w3Num = parseNumDE(w3);
+ 
+   if(!isPLZ(plz1)) throw new Error("PLZ muss 5-stellig sein.");
+   const w = parseNumDE(w1);
+   if(!Number.isFinite(w) || w<=0) throw new Error("Gewicht muss > 0 sein.");
+ 
+   if(use2){
+     if(plz2 && !isPLZ(plz2)) throw new Error("PLZ 2 muss 5-stellig sein (oder leer).");
+-    if(w2 && !(parseNumDE(w2)>0)) throw new Error("Gewicht 2 muss > 0 sein (oder leer).");
++    if(w2 && !(w2Num>0)) throw new Error("Gewicht 2 muss > 0 sein (oder leer).");
+   }
+   if(use3){
+     if(plz3 && !isPLZ(plz3)) throw new Error("PLZ 3 muss 5-stellig sein (oder leer).");
+-    if(w3 && !(parseNumDE(w3)>0)) throw new Error("Gewicht 3 muss > 0 sein (oder leer).");
++    if(w3 && !(w3Num>0)) throw new Error("Gewicht 3 muss > 0 sein (oder leer).");
+   }
+ 
+-  return {plz1, w, applyBaz, use2, use3};
++  return {
++    plz1, w, applyBaz, use2, use3,
++    plz2, w2: Number.isFinite(w2Num) && w2Num > 0 ? w2Num : 0,
++    plz3, w3: Number.isFinite(w3Num) && w3Num > 0 ? w3Num : 0,
++  };
+ }
+ 
+ function updateCols(){
+   const applyBaz = document.getElementById("cbBaustelle").checked;
+   const use2 = document.getElementById("cbStop2").checked;
+   const use3 = document.getElementById("cbStop3").checked;
+   document.querySelectorAll(".colBaustelle").forEach(el=>el.classList.toggle("d-none", !applyBaz));
+   document.querySelectorAll(".colStop2").forEach(el=>el.classList.toggle("d-none", !use2));
+   document.querySelectorAll(".colStop3").forEach(el=>el.classList.toggle("d-none", !use3));
+ }
+ 
+ function calc(){
+   updateCols();
+   document.getElementById("errBox").classList.add("d-none");
+   const tb=document.getElementById("tbody");
+   tb.innerHTML = "";
+ 
+-  const {plz1, w, applyBaz, use2, use3} = readInputs();
++  const {plz1, w, applyBaz, use2, use3, plz2, w2, plz3, w3} = readInputs();
+ 
+   const options = [];
+   if(applyBaz) options.push("Baustelle");
+   if(use2) options.push("2. Stopp");
+   if(use3) options.push("3. Stopp");
+   document.getElementById("sumPlz").textContent = plz1;
+-  const totalW = w + (use2 ? w2 : 0) + (use3 ? w3 : 0);
+-    document.getElementById("sumW").textContent = totalW.toLocaleString("de-DE");
+-  document.getElementById("sumOpt").textContent = options.length ? options.join(", ") : "—";
+   // totals & stop details
+   const stops = [{plz:plz1, w:w}];
+-  if (cbStop2.checked) stops.push({plz:plz2, w:w2});
+-  if (cbStop3.checked) stops.push({plz:plz3, w:w3});
++  if (use2) stops.push({plz:plz2, w:w2});
++  if (use3) stops.push({plz:plz3, w:w3});
+   const totalW = stops.reduce((a,s)=>a + (Number(s.w)||0), 0);
++  document.getElementById("sumW").textContent = totalW.toLocaleString("de-DE");
++  document.getElementById("sumOpt").textContent = options.length ? options.join(", ") : "—";
+   const stopCount = stops.length;
+-  const hasBaustelle = cbBaustelle.checked;
++  const hasBaustelle = applyBaz;
+   document.getElementById("sumTotals").textContent = `${totalW.toLocaleString("de-DE")} kg / ${stopCount} Stop${stopCount===1?"":"ps"} / ${hasBaustelle?"Baustellentour":"Standard"}`;
+   document.getElementById("sumStops").textContent = stops.map((s,i)=>`PLZ${i+1}: ${s.plz || "—"} / Gewicht${i+1}: ${(Number(s.w)||0).toLocaleString("de-DE")} kg`).join(" | ");
+   document.getElementById("sumCheapest").textContent = "—";
+ 
+   // exclusions like old project (can be adjusted)
+   const excludeBaustelle = new Set(["Koch", "DB Schenker", "Hartmann", "Sievert", "Berghegger", "Elvis"]);
+   const excludeStop2 = new Set(["Koch"]);
+   const excludeStop3 = new Set(["Koch"]);
+ 
+   let cheapest = null; // {fwd, price}
+ 
+   const rowsOut = [];
+ 
+   for(const fwd of FORWARDERS){
+     let zone = findZone(fwd, plz1);
+     let base = null, reason="";
+ 
+     if(zone==null){
+       reason = "PLZ nicht in Zone";
+     }else{
+       const rate = findRate(fwd, zone, w);
+       base = rate.value;
+       reason = rate.reason;
+       if(base==null) zone = zone; // keep
+     }
+@@ -618,26 +623,26 @@ function reset(){
+   updateCols();
+   renderEmptyTable();
+ }
+ 
+ function updateStopsUI(){
+   const use2 = document.getElementById("cbStop2").checked;
+   const use3 = document.getElementById("cbStop3").checked;
+   const row = document.getElementById("stopsRow");
+   row.style.display = (use2||use3) ? "" : "none";
+   document.getElementById("stop2Box").style.display = use2 ? "" : "none";
+   document.getElementById("stop3Box").style.display = use3 ? "" : "none";
+ }
+ 
+ // init
+ document.getElementById("btnCalc").addEventListener("click", ()=>{
+   try{ calc(); }catch(e){ showErr(String(e.message||e)); }
+ });
+ document.getElementById("btnReset").addEventListener("click", reset);
+ document.getElementById("cbStop2").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
+ document.getElementById("cbStop3").addEventListener("change", ()=>{ updateStopsUI(); updateCols(); });
+ document.getElementById("cbBaustelle").addEventListener("change", updateCols);
+ 
+ loadAll().catch(e=>showErr(String(e.message||e)));
+ </script>
+ </body>
+-</html>
+\ No newline at end of file
++</html>
