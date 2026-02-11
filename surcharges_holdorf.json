@@ -1,18 +1,18 @@
 {
   "Berghegger": {
-    "baustelle": 0,
+    "baustelle": 20,
     "stop2": 0,
     "stop3": 0
   },
   "Böckmann": {
     "baustelle": 0,
-    "stop2": 0,
+    "stop2": 20,
     "stop3": 0
   },
   "DB Schenker": {
     "baustelle": 0,
     "stop2": 0,
-    "stop3": 0
+    "stop3": 50
   },
   "Elvis": {
     "baustelle": 0,
