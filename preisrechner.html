@@ -37,9 +37,9 @@
         <label class="form-label fw-bold">Gewicht (kg)</label>
         <input id="w1" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
       </div>
-      <div class="col-md-2 d-flex gap-2">
-        <button id="btnCalc" class="btn btn-primary w-100">Berechnen</button>
-        <button id="btnReset" class="btn btn-outline-secondary w-100">Zurücksetzen</button>
+      <div class="col-md-2 d-grid gap-2">
+        <button id="btnCalc" class="btn btn-primary">Berechnen</button>
+        <button id="btnReset" class="btn btn-outline-secondary">Zurücksetzen</button>
       </div>
     </div>
 
@@ -367,20 +367,35 @@ function calc(){
     }
 
     let reason = "";
-    // surcharges
+    // surcharges (supports both JSON formats)
+    const sur = DATA.surcharges || {};
+    const getSur = (key)=>{
+      // format A: { "Forwarder": {"baustelle": 0, "stop2": 0, "stop3": 0} }
+      if(sur[forwarder] && typeof sur[forwarder] === 'object'){
+        const v = sur[forwarder][key];
+        if(Number.isFinite(v)) return v;
+      }
+      // format B: { "baustelle": {"Forwarder": 0}, "stop2": {...}, "stop3": {...} }
+      if(sur[key] && typeof sur[key] === 'object'){
+        const v = sur[key][forwarder];
+        if(Number.isFinite(v)) return v;
+      }
+      return NaN;
+    };
+
     let baustelle=0, s2=0, s3=0;
     if(document.getElementById("chkBaustelle").checked){
-      const v = DATA.surcharges.baustelle?.[forwarder];
+      const v = getSur('baustelle');
       if(Number.isFinite(v)) baustelle = v;
       else reason = reason || "Keine Baustellenzustellung";
     }
     if(document.getElementById("chk2").checked){
-      const v = DATA.surcharges.stop2?.[forwarder];
+      const v = getSur('stop2');
       if(Number.isFinite(v)) s2 = v;
       else reason = reason || "Kein 2. Stopp";
     }
     if(document.getElementById("chk3").checked){
-      const v = DATA.surcharges.stop3?.[forwarder];
+      const v = getSur('stop3');
       if(Number.isFinite(v)) s3 = v;
       else reason = reason || "Kein 3. Stopp";
     }

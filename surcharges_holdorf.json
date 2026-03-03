@@ -1,11 +1,11 @@
 {
   "Berghegger": {
-    "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "baustelle": 20,
+    "stop2": 10,
+    "stop3": 30
   },
   "Böckmann": {
-    "baustelle": 0,
+    "baustelle": 400,
     "stop2": 0,
     "stop3": 0
   },
