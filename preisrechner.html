@@ -113,9 +113,9 @@
           <th>Spediteur</th>
           <th>Zone</th>
           <th>Basis (€)</th>
-          <th>Baustelle (€)</th>
-          <th>2. Stopp (€)</th>
-          <th>3. Stopp (€)</th>
+          <th data-col="baz">Baustelle (€)</th>
+          <th data-col="s2">2. Stopp (€)</th>
+          <th data-col="s3">3. Stopp (€)</th>
           <th>Floater (%)</th>
           <th>Floater (€)</th>
           <th>Preis (€)</th>
@@ -123,7 +123,7 @@
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
+        <tr class="placeholder"><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
       </tbody>
     </table>
   </div>
@@ -133,6 +133,24 @@
 <script>
 let DATA = null;
 
+
+function setColVisible(col, visible){
+  document.querySelectorAll(`[data-col="${col}"]`).forEach(el=>{
+    el.style.display = visible ? "" : "none";
+  });
+}
+function updateColumnVisibility(){
+  const bazOn = document.getElementById('chkBaustelle').checked;
+  const s2On  = document.getElementById('chk2').checked;
+  const s3On  = document.getElementById('chk3').checked;
+  setColVisible('baz', bazOn);
+  setColVisible('s2', s2On);
+  setColVisible('s3', s3On);
+  // update placeholder colspan
+  const thCount = document.querySelectorAll('thead th:not([style*="display: none"])').length;
+  const ph = document.querySelector('#tbody tr.placeholder td');
+  if(ph) ph.colSpan = thCount;
+}
 function showErr(msg){
   const el = document.getElementById("msgErr");
   el.textContent = msg;
@@ -289,11 +307,11 @@ function renderRows(rows){
       <td>${r.forwarder}</td>
       <td>${r.zone ?? "—"}</td>
       <td>${money(r.base)}</td>
-      <td>${money(r.baustelle)}</td>
-      <td>${money(r.stop2)}</td>
-      <td>${money(r.stop3)}</td>
+      <td>${moneyOpt(r.baustelle)}</td>
+      <td>${moneyOpt(r.stop2)}</td>
+      <td>${moneyOpt(r.stop3)}</td>
       <td>${r.floaterPct.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}%</td>
-      <td>${money(r.floaterEur)}</td>
+      <td>${moneyOpt(r.floaterEur)}</td>
       <td>${money(r.total)}</td>
       <td>${r.reason || ""}</td>
     `;
@@ -357,12 +375,12 @@ function calc(){
     }
     const band = bandForWeight(DATA.rates, forwarder, totalKg);
     if(!band){
-      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Kein Gewichtsband"});
+      rows.push({forwarder, zone, base:NaN, baustelle:NaN, stop2:NaN, stop3:NaN, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Kein Gewichtsband"});
       continue;
     }
     const base = band.prices.get(zone);
     if(!Number.isFinite(base)){
-      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:`Kein Preis für Zone ${zone}`});
+      rows.push({forwarder, zone, base:NaN, baustelle:NaN, stop2:NaN, stop3:NaN, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:`Kein Preis für Zone ${zone}`});
       continue;
     }
 
@@ -383,26 +401,43 @@ function calc(){
       return NaN;
     };
 
-    let baustelle=0, s2=0, s3=0;
-    if(document.getElementById("chkBaustelle").checked){
+    const needB = document.getElementById("chkBaustelle").checked;
+    const need2 = document.getElementById("chk2").checked;
+    const need3 = document.getElementById("chk3").checked;
+
+    let baustelle = NaN, s2 = NaN, s3 = NaN;
+
+    if(needB){
       const v = getSur('baustelle');
       if(Number.isFinite(v)) baustelle = v;
       else reason = reason || "Keine Baustellenzustellung";
     }
-    if(document.getElementById("chk2").checked){
+    if(need2){
       const v = getSur('stop2');
       if(Number.isFinite(v)) s2 = v;
       else reason = reason || "Kein 2. Stopp";
     }
-    if(document.getElementById("chk3").checked){
+    if(need3){
       const v = getSur('stop3');
       if(Number.isFinite(v)) s3 = v;
       else reason = reason || "Kein 3. Stopp";
     }
 
     const floPct = Number(DATA.floater[forwarder] ?? 0);
-    const floEur = round2(base * (floPct/100));
-    const total = round2(base + floEur + baustelle + s2 + s3);
+    const floEur = Number.isFinite(base) ? round2(base * (floPct/100)) : NaN;
+
+    const ok = Number.isFinite(base)
+      && (!needB || Number.isFinite(baustelle))
+      && (!need2 || Number.isFinite(s2))
+      && (!need3 || Number.isFinite(s3));
+
+    const total = ok ? round2(
+      base
+      + floEur
+      + (needB ? baustelle : 0)
+      + (need2 ? s2 : 0)
+      + (need3 ? s3 : 0)
+    ) : NaN;
 
     rows.push({forwarder, zone, base, baustelle, stop2:s2, stop3:s3, floaterPct:floPct, floaterEur:floEur, total, reason});
 
@@ -412,6 +447,7 @@ function calc(){
     }
   }
 
+  updateColumnVisibility();
   renderRows(rows);
   setSummary(stops, opts, cheapest);
 }
@@ -459,7 +495,7 @@ function wireUI(){
     for(const id of ["chkBaustelle","chk2","chk3"]){ document.getElementById(id).checked=false; }
     document.getElementById("stop2Box").classList.add("d-none");
     document.getElementById("stop3Box").classList.add("d-none");
-    document.getElementById("tbody").innerHTML = `<tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>`;
+    document.getElementById("tbody").innerHTML = `<tr class="placeholder"><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>`;
     document.getElementById("summaryLeft").innerHTML = `
       <div><b>PLZ:</b> —</div>
       <div><b>Gewicht:</b> —</div>
@@ -468,11 +504,16 @@ function wireUI(){
       <div><b>Stops:</b> —</div>
     `;
     document.getElementById("summaryRight").innerHTML = `<div class="fw-bold">Günstigster Anbieter</div><div>—</div>`;
+    updateColumnVisibility();
   });
 
   const chk2 = document.getElementById("chk2");
   const chk3 = document.getElementById("chk3");
   chk2.addEventListener("change", ()=>{ document.getElementById("stop2Box").classList.toggle("d-none", !chk2.checked); });
+  chk2.addEventListener("change", updateColumnVisibility);
+  chk3.addEventListener("change", updateColumnVisibility);
+  document.getElementById("chkBaustelle").addEventListener("change", updateColumnVisibility);
+  updateColumnVisibility();
   chk3.addEventListener("change", ()=>{ document.getElementById("stop3Box").classList.toggle("d-none", !chk3.checked); });
 }
 
