@@ -1,123 +1,4 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Gerwing Steinwerke Preisrechner</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body{background:#f4f7f9;color:#0b2230;}
-    .brand{color:#0a5b7a;font-weight:900;letter-spacing:.2px}
-    .card{border-radius:16px; box-shadow:0 6px 24px rgba(0,0,0,.08);}
-    .table thead th{background:#0a5b7a;color:#fff;border-color:#0a5b7a;white-space:nowrap;}
-    .btn-primary{background:#0a5b7a;border-color:#0a5b7a;font-weight:800;border-radius:12px;padding:10px 18px;}
-    .btn-outline-secondary{border-radius:12px;padding:10px 18px;font-weight:700;}
-    .summary{background:#d9f2de;border-radius:10px;border:1px solid rgba(0,0,0,.05);}
-    .hint{background:#fff3cd;border:1px solid rgba(0,0,0,.06);border-radius:10px;}
-    .err{background:#f8d7da;border:1px solid rgba(220,53,69,.25);border-radius:10px;}
-    .muted{color:#6c757d}
-  </style>
-</head>
-<body>
-<div class="container py-4" style="max-width:1200px">
-  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
-    <div>
-      <h1 class="display-6 brand mb-0" id="title">Gerwing Steinwerke Preisrechner</h1>
-    </div>
-    <a class="btn btn-outline-secondary" href="index.html">Zurück</a>
-  </div>
 
-  <div class="card p-4 mb-4">
-    <div class="row g-3 align-items-end">
-      <div class="col-md-5">
-        <label class="form-label fw-bold">PLZ</label>
-        <input id="plz1" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
-      </div>
-      <div class="col-md-5">
-        <label class="form-label fw-bold">Gewicht (kg)</label>
-        <input id="w1" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
-      </div>
-      <div class="col-md-2 d-grid gap-2">
-        <button id="btnCalc" class="btn btn-primary">Berechnen</button>
-        <button id="btnReset" class="btn btn-outline-secondary">Zurücksetzen</button>
-      </div>
-    </div>
-
-    <div class="d-flex flex-wrap gap-4 mt-3">
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chkBaustelle">
-        <label class="form-check-label" for="chkBaustelle">Baustelle</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chk2">
-        <label class="form-check-label" for="chk2">Zweiter Stopp</label>
-      </div>
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="chk3">
-        <label class="form-check-label" for="chk3">Dritter Stopp</label>
-      </div>
-    </div>
-
-    <div id="stop2Box" class="card p-3 mt-3 d-none">
-      <div class="fw-bold mb-2">2. Stopp</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">PLZ 2</label>
-          <input id="plz2" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Gewicht 2 (kg)</label>
-          <input id="w2" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
-        </div>
-      </div>
-    </div>
-
-    <div id="stop3Box" class="card p-3 mt-3 d-none">
-      <div class="fw-bold mb-2">3. Stopp</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">PLZ 3</label>
-          <input id="plz3" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Gewicht 3 (kg)</label>
-          <input id="w3" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
-        </div>
-      </div>
-    </div>
-
-    <div id="msgErr" class="err p-3 mt-3 d-none"></div>
-    <div id="msgHint" class="hint p-3 mt-3 d-none"></div>
-
-    <div class="summary p-3 mt-3">
-      <div class="row">
-        <div class="col-md-7" id="summaryLeft">
-          <div><b>PLZ:</b> —</div>
-          <div><b>Gewicht:</b> —</div>
-          <div><b>Optionen:</b> —</div>
-          <div class="mt-2"><b>Gesamtgewicht / Stops / Baustelle:</b> —</div>
-          <div><b>Stops:</b> —</div>
-        </div>
-        <div class="col-md-5 text-md-end" id="summaryRight">
-          <div class="fw-bold">Günstigster Anbieter</div>
-          <div>—</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="table-responsive card">
-    <table class="table table-striped mb-0">
-      <thead><tr id="theadRow"></tr></thead>
-      <tbody id="tbody">
-        <tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<script src="common.js"></script>
-<script>
 let DATA = null;
 
 function showErr(msg){
@@ -137,16 +18,6 @@ function showHint(msg){
 function clearHint(){
   document.getElementById("msgHint").classList.add("d-none");
   document.getElementById("msgHint").textContent = "";
-}
-
-// Helper to read querystring params (needed for ?werk=holdorf / ?werk=clausnitz)
-function qsParam(key){
-  try { return new URLSearchParams(window.location.search).get(key); }
-  catch(e){ return null; }
-}
-
-function hasKey(obj, key){
-  return obj && Object.prototype.hasOwnProperty.call(obj, key);
 }
 
 function normalizePlz(v){
@@ -395,66 +266,49 @@ function setSummary(summary){
     // surcharges (supports both JSON formats)
     const sur = DATA.surcharges || {};
     const getSur = (key)=>{
-      // format A: { "Forwarder": {"baustelle":0,"stop2":0,"stop3":0} }
-      if(sur[forwarder] && typeof sur[forwarder] === "object"){
+      // format A: { "Forwarder": {"baustelle": 0, "stop2": 0, "stop3": 0} }
+      if(sur[forwarder] && typeof sur[forwarder] === 'object'){
         const v = sur[forwarder][key];
         if(Number.isFinite(v)) return v;
       }
-      // format B: { "baustelle": {"Forwarder":0}, ... }
-      if(sur[key] && typeof sur[key] === "object"){
+      // format B: { "baustelle": {"Forwarder": 0}, "stop2": {...}, "stop3": {...} }
+      if(sur[key] && typeof sur[key] === 'object'){
         const v = sur[key][forwarder];
         if(Number.isFinite(v)) return v;
       }
       return NaN;
     };
-    const surHas = (key)=>{
-      if(sur[forwarder] && typeof sur[forwarder] === "object" && Object.prototype.hasOwnProperty.call(sur[forwarder], key)) return true;
-      if(sur[key] && typeof sur[key] === "object" && Object.prototype.hasOwnProperty.call(sur[key], forwarder)) return true;
-      return false;
-    };
 
     let baustelle=0, s2=0, s3=0;
-    const forwarderName = forwarder;
-
-    // Some forwarders (e.g. Böckmann) have Baustellentarif already included in the base rates
-    const baustelleIncluded = !!(
-      (sur[forwarderName] && typeof sur[forwarderName] === "object" && (sur[forwarderName].baustelle_included || sur[forwarderName].baustelleIncluded || (sur[forwarderName].included && sur[forwarderName].included.baustelle)))
-      || forwarderName === "Böckmann"
-    );
+    const forwarderName = r.forwarder;
+    // Special case: Böckmann has Baustellentarif already included in the base rates
+    let baustelleIncluded = false;
 
     if(document.getElementById("chkBaustelle").checked){
-      if(baustelleIncluded){
+      if(forwarderName === "Böckmann"){
         baustelle = 0;
-      } else if(!surHas("baustelle")) {
-        reason = "Keine Baustellenzustellung";
+        baustelleIncluded = true;
       } else {
-        const v = getSur("baustelle");
+        const v = getSur('baustelle');
         if(Number.isFinite(v)) baustelle = v;
-        else reason = "Keine Baustellenzustellung";
+        else reason = reason || "Keine Baustellenzustellung";
       }
     }
 
     if(document.getElementById("chk2").checked){
-      if(!surHas("stop2")) reason = reason || "Kein 2. Stopp";
-      else {
-        const v = getSur("stop2");
-        if(Number.isFinite(v)) s2 = v;
-        else reason = reason || "Kein 2. Stopp";
-      }
+      const v = getSur('stop2');
+      if(Number.isFinite(v)) s2 = v;
+      else reason = reason || "Kein 2. Stopp";
     }
-
     if(document.getElementById("chk3").checked){
-      if(!surHas("stop3")) reason = reason || "Kein 3. Stopp";
-      else {
-        const v = getSur("stop3");
-        if(Number.isFinite(v)) s3 = v;
-        else reason = reason || "Kein 3. Stopp";
-      }
+      const v = getSur('stop3');
+      if(Number.isFinite(v)) s3 = v;
+      else reason = reason || "Kein 3. Stopp";
     }
 
     const floPct = Number(DATA.floater[forwarder] ?? 0);
     const floEur = round2(base * (floPct/100));
-    const total = reason ? NaN : round2(base + floEur + baustelle + s2 + s3);
+    const total = round2(base + floEur + baustelle + s2 + s3);
 
     rows.push({forwarder, zone, base, baustelle, baustelleIncluded, stop2:s2, stop3:s3, floaterPct:floPct, floaterEur:floEur, total, reason});
 
@@ -474,7 +328,7 @@ function setSummary(summary){
     totalKg,
     stopCount: stops.length,
     baustelle: document.getElementById("chkBaustelle").checked,
-    best: best
+    best: cheapest ? {name: cheapest.name, total: cheapest.total} : null
   });
 }
 
@@ -541,8 +395,3 @@ function wireUI(){
 wireUI();
 renderRows([], {showBaustelle:false, showStop2:false, showStop3:false});
 loadData();
-</script>
-</body>
-</html>
-
-  
