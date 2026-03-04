@@ -4,6 +4,20 @@ function qsParam(name) {
   return u.searchParams.get(name);
 }
 
+
+function num(v){
+  if(v===null || v===undefined) return 0;
+  // accepts numbers, "1.234,56", "1234.56", "1 234,56 €"
+  const s = String(v)
+    .replace(/\s+/g,'')
+    .replace(/€/g,'')
+    .replace(/\./g,'')      // thousands separator
+    .replace(/,/g,'.')       // decimal comma
+    .replace(/[^0-9.\-]/g,'');
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
 function normalizeHeader(s){
   return String(s||"")
     .trim()
