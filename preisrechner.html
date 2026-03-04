@@ -310,7 +310,9 @@ function setSummary(summary){
     const valid = rows.filter(r => typeof r.total === 'number' && isFinite(r.total));
     const minTotal = valid.length ? Math.min(...valid.map(r=>r.total)) : null;
 
-    const body = document.getElementById('rows');
+    // The table body in the markup uses id="tbody".
+    // Using a wrong id (e.g. "rows") makes body null and breaks the script before data loading.
+    const body = document.getElementById('tbody');
     if(!rows.length){
       body.innerHTML = `<tr><td colspan="${cols.length}" class="text-muted">Noch keine Berechnung.</td></tr>`;
       return;
