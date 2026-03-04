@@ -108,20 +108,7 @@
 
   <div class="table-responsive card">
     <table class="table table-striped mb-0">
-      <thead>
-        <tr>
-          <th>Spediteur</th>
-          <th>Zone</th>
-          <th>Basis (€)</th>
-          <th>Baustelle (€)</th>
-          <th>2. Stopp (€)</th>
-          <th>3. Stopp (€)</th>
-          <th>Floater (%)</th>
-          <th>Floater (€)</th>
-          <th>Preis (€)</th>
-          <th>Grund</th>
-        </tr>
-      </thead>
+      <thead><tr id="theadRow"></tr></thead>
       <tbody id="tbody">
         <tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
       </tbody>
@@ -261,72 +248,100 @@ function bandForWeight(ratesMap, forwarder, kg){
   return null;
 }
 
-function setSummary(stops, opts, cheapest){
-  const totalKg = stops.reduce((s,x)=>s+x.kg,0);
-  const stopsTxt = stops.map((s,i)=>`PLZ${i+1}: ${s.plz} / Gewicht${i+1}: ${money(s.kg)} kg`).join(" | ");
-  const left = document.getElementById("summaryLeft");
-  left.innerHTML = `
-    <div><b>PLZ:</b> ${stops[0]?.plz || "—"}</div>
-    <div><b>Gewicht:</b> ${money(stops[0]?.kg)} kg</div>
-    <div><b>Optionen:</b> ${opts.length?opts.join(", "):"—"}</div>
-    <div class="mt-2"><b>Gesamtgewicht / Stops / Baustelle:</b> ${money(totalKg)} kg / ${stops.length} Stop${stops.length>1?"s":""} / ${opts.includes("Baustelle")?"Baustellentour":"Standard"}</div>
-    <div><b>Stops:</b> ${stopsTxt}</div>
-  `;
-  const right = document.getElementById("summaryRight");
-  right.innerHTML = `<div class="fw-bold">Günstigster Anbieter</div><div>${cheapest||"—"}</div>`;
-}
+function setSummary(summary){
+    // summary: {stops:[], totalKg:number, stopCount:number, baustelle:boolean, best:{name,total}|null}
+    const s = summary || {};
+    const plz = (s.stops?.[0]?.plz) || '—';
+    const w1 = (s.stops?.[0]?.kg) ?? null;
+    const opts = [];
+    if(s.baustelle) opts.push('Baustelle');
+    if((s.stopCount||1) >= 2) opts.push('2. Stopp');
+    if((s.stopCount||1) >= 3) opts.push('3. Stopp');
 
-function renderRows(rows){
-  const tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-  if(rows.length===0){
-    tbody.innerHTML = `<tr><td colspan="10" class="muted">Keine Daten.</td></tr>`;
-    return;
-  }
-  for(const r of rows){
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${r.forwarder}</td>
-      <td>${r.zone ?? "—"}</td>
-      <td>${money(r.base)}</td>
-      <td>${money(r.baustelle)}</td>
-      <td>${money(r.stop2)}</td>
-      <td>${money(r.stop3)}</td>
-      <td>${r.floaterPct.toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2})}%</td>
-      <td>${money(r.floaterEur)}</td>
-      <td>${money(r.total)}</td>
-      <td>${r.reason || ""}</td>
-    `;
-    tbody.appendChild(tr);
-  }
-}
+    document.getElementById('sumPlz').textContent = plz;
+    document.getElementById('sumGew').textContent = fmtKg(w1)
+    document.getElementById('sumOpt').textContent = opts.length? opts.join(', ') : '—';
 
-function validateStops(){
-  const stops = [];
-  const plz1 = normalizePlz(document.getElementById("plz1").value);
-  const w1 = parseKg(document.getElementById("w1").value);
-  if(!plz1) throw new Error("PLZ ist ein Pflichtfeld (5-stellig).");
-  if(!Number.isFinite(w1) || w1<=0) throw new Error("Gewicht ist ein Pflichtfeld (> 0).");
-  stops.push({plz:plz1, kg:w1});
+    document.getElementById('sumTotals').textContent =
+      `${fmtKg(s.totalKg||0)} / ${(s.stopCount||1)} Stop${(s.stopCount||1)>1?'ps':''} / ${s.baustelle?'Baustellentour':'Standard'}`;
 
-  if(document.getElementById("chk2").checked){
-    const plz2 = normalizePlz(document.getElementById("plz2").value);
-    const w2 = parseKg(document.getElementById("w2").value);
-    if(!plz2) throw new Error("PLZ 2 ist Pflicht, wenn 'Zweiter Stopp' aktiv ist.");
-    if(!Number.isFinite(w2) || w2<=0) throw new Error("Gewicht 2 ist Pflicht (> 0), wenn 'Zweiter Stopp' aktiv ist.");
-    stops.push({plz:plz2, kg:w2});
-  }
-  if(document.getElementById("chk3").checked){
-    const plz3 = normalizePlz(document.getElementById("plz3").value);
-    const w3 = parseKg(document.getElementById("w3").value);
-    if(!plz3) throw new Error("PLZ 3 ist Pflicht, wenn 'Dritter Stopp' aktiv ist.");
-    if(!Number.isFinite(w3) || w3<=0) throw new Error("Gewicht 3 ist Pflicht (> 0), wenn 'Dritter Stopp' aktiv ist.");
-    stops.push({plz:plz3, kg:w3});
-  }
-  return stops;
-}
+    const stopsLine = (s.stops||[]).map((st,i)=>`PLZ${i+1}: ${st.plz} / Gewicht${i+1}: ${fmtKg(st.kg)}`).join(' | ');
+    document.getElementById('sumStops').textContent = stopsLine || '—';
 
-function calc(){
+    const best = s.best;
+    document.getElementById('bestName').textContent = best ? best.name : '—';
+    document.getElementById('bestPrice').textContent = best ? `(${money(best.total)})` : '';
+  }
+
+
+  function renderRows(rows, view){
+    // view: {showBaustelle, showStop2, showStop3}
+    const v = Object.assign({showBaustelle:false, showStop2:false, showStop3:false}, view||{});
+    const cols = [
+      {key:'forwarder', label:'Spediteur'},
+      {key:'zone', label:'Zone'},
+      {key:'base', label:'Basis (€)'},
+    ];
+    if(v.showBaustelle) cols.push({key:'baustelle', label:'Baustelle (€)'});
+    if(v.showStop2) cols.push({key:'stop2', label:'2. Stopp (€)'});
+    if(v.showStop3) cols.push({key:'stop3', label:'3. Stopp (€)'});
+    cols.push(
+      {key:'floaterPct', label:'Floater (%)'},
+      {key:'floaterEur', label:'Floater (€)'},
+      {key:'total', label:'Preis (€)'},
+      {key:'reason', label:'Grund'}
+    );
+
+    // Build header
+    const theadRow = document.getElementById('theadRow');
+    theadRow.innerHTML = cols.map(c=>`<th>${c.label}</th>`).join('');
+
+    // Find cheapest (valid totals only)
+    const valid = rows.filter(r => typeof r.total === 'number' && isFinite(r.total));
+    const minTotal = valid.length ? Math.min(...valid.map(r=>r.total)) : null;
+
+    const body = document.getElementById('rows');
+    if(!rows.length){
+      body.innerHTML = `<tr><td colspan="${cols.length}" class="text-muted">Noch keine Berechnung.</td></tr>`;
+      return;
+    }
+
+    const showBlankZero = (n)=> (n===0 ? '' : money(n));
+    const showBlankPct = (p)=> (p===0 ? '' : (String(p).replace('.',',') + '%'));
+
+    body.innerHTML = rows.map(r=>{
+      const isBest = (minTotal!==null && typeof r.total==='number' && Math.abs(r.total-minTotal)<0.0001);
+      const trClass = isBest ? 'table-success' : '';
+      const cells = [];
+      cells.push(`<td>${r.forwarder}</td>`);
+      cells.push(`<td>${r.zone ?? '—'}</td>`);
+      cells.push(`<td>${r.base!=null? money(r.base): '—'}</td>`);
+
+      if(v.showBaustelle){
+        let val = '';
+        if(r.baustelleIncluded) val = 'inkl.';
+        else if(typeof r.baustelle === 'number') val = showBlankZero(r.baustelle);
+        cells.push(`<td>${val}</td>`);
+      }
+      if(v.showStop2){
+        const val = (typeof r.stop2 === 'number') ? showBlankZero(r.stop2) : '';
+        cells.push(`<td>${val}</td>`);
+      }
+      if(v.showStop3){
+        const val = (typeof r.stop3 === 'number') ? showBlankZero(r.stop3) : '';
+        cells.push(`<td>${val}</td>`);
+      }
+
+      cells.push(`<td>${r.floaterPct!=null? showBlankPct(r.floaterPct): ''}</td>`);
+      cells.push(`<td>${typeof r.floaterEur==='number'? (r.floaterEur===0?'':money(r.floaterEur)) : ''}</td>`);
+      cells.push(`<td>${typeof r.total==='number'? money(r.total): '—'}</td>`);
+      cells.push(`<td>${r.reason||''}</td>`);
+      return `<tr class="${trClass}">${cells.join('')}</tr>`;
+    }).join('');
+  }
+
+
+  function calc(){
   clearErr();
   clearHint();
   if(!DATA) { showErr("Daten sind noch nicht geladen."); return; }
@@ -349,54 +364,20 @@ function calc(){
   let cheapestVal=Infinity;
 
   for(const forwarder of DATA.forwarders){
-    // Pricing rule:
-    // - Sievert: sum of stop-prices (zone+weight per stop)
-    // - others: total weight + most expensive (max) zone across all stops
-    let zone = null;
-    let base = NaN;
-    let baseReason = "";
-
-    if(forwarder === "Sievert"){
-      let sum = 0;
-      let worstZone = null;
-      for(const st of stops){
-        const z = zoneForPlz(DATA.zones, forwarder, st.plz);
-        if(z==null){ baseReason = "Keine Zone"; break; }
-        worstZone = (worstZone==null) ? z : Math.max(worstZone, z);
-
-        const b = bandForWeight(DATA.rates, forwarder, st.kg);
-        if(!b){ baseReason = "Kein Gewichtsband"; break; }
-        const part = b.prices.get(z);
-        if(!Number.isFinite(part)){ baseReason = `Kein Preis für Zone ${z}`; break; }
-        sum += part;
-      }
-      if(!baseReason){
-        zone = worstZone;
-        base = sum;
-      }
-    }else{
-      const zones = [];
-      for(const st of stops){
-        const z = zoneForPlz(DATA.zones, forwarder, st.plz);
-        if(z==null){ baseReason = "Keine Zone"; break; }
-        zones.push(z);
-      }
-      if(!baseReason){
-        const maxZone = Math.max(...zones);
-        zone = maxZone;
-
-        const band = bandForWeight(DATA.rates, forwarder, totalKg);
-        if(!band) baseReason = "Kein Gewichtsband";
-        else{
-          const p = band.prices.get(maxZone);
-          if(!Number.isFinite(p)) baseReason = `Kein Preis für Zone ${maxZone}`;
-          else base = p;
-        }
-      }
+    // zone based on first stop (typical); you can extend per stop if needed
+    const zone = zoneForPlz(DATA.zones, forwarder, stops[0].plz);
+    if(zone==null){
+      rows.push({forwarder, zone:"—", base:NaN, baustelle:NaN, baustelleIncluded:false, stop2:NaN, stop3:NaN, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Keine Zone"});
+      continue;
     }
-
+    const band = bandForWeight(DATA.rates, forwarder, totalKg);
+    if(!band){
+      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Kein Gewichtsband"});
+      continue;
+    }
+    const base = band.prices.get(zone);
     if(!Number.isFinite(base)){
-      rows.push({forwarder, zone: zone ?? "—", base:NaN, baustelle:NaN, stop2:NaN, stop3:NaN, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason: baseReason || "Nicht berechenbar"});
+      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:`Kein Preis für Zone ${zone}`});
       continue;
     }
 
@@ -418,11 +399,21 @@ function calc(){
     };
 
     let baustelle=0, s2=0, s3=0;
+    const forwarderName = r.forwarder;
+    // Special case: Böckmann has Baustellentarif already included in the base rates
+    let baustelleIncluded = false;
+
     if(document.getElementById("chkBaustelle").checked){
-      const v = getSur('baustelle');
-      if(Number.isFinite(v)) baustelle = v;
-      else reason = reason || "Keine Baustellenzustellung";
+      if(forwarderName === "Böckmann"){
+        baustelle = 0;
+        baustelleIncluded = true;
+      } else {
+        const v = getSur('baustelle');
+        if(Number.isFinite(v)) baustelle = v;
+        else reason = reason || "Keine Baustellenzustellung";
+      }
     }
+
     if(document.getElementById("chk2").checked){
       const v = getSur('stop2');
       if(Number.isFinite(v)) s2 = v;
@@ -438,7 +429,7 @@ function calc(){
     const floEur = round2(base * (floPct/100));
     const total = round2(base + floEur + baustelle + s2 + s3);
 
-    rows.push({forwarder, zone, base, baustelle, stop2:s2, stop3:s3, floaterPct:floPct, floaterEur:floEur, total, reason});
+    rows.push({forwarder, zone, base, baustelle, baustelleIncluded, stop2:s2, stop3:s3, floaterPct:floPct, floaterEur:floEur, total, reason});
 
     if(Number.isFinite(total) && total < cheapestVal){
       cheapestVal = total;
@@ -446,8 +437,18 @@ function calc(){
     }
   }
 
-  renderRows(rows);
-  setSummary(stops, opts, cheapest);
+  renderRows(rows, {
+    showBaustelle: document.getElementById("chkBaustelle").checked,
+    showStop2: document.getElementById("chk2").checked,
+    showStop3: document.getElementById("chk3").checked
+  });
+  setSummary({
+    stops,
+    totalKg,
+    stopCount: stops.length,
+    baustelle: document.getElementById("chkBaustelle").checked,
+    best: cheapest ? {name: cheapest.name, total: cheapest.total} : null
+  });
 }
 
 async function loadData(){
@@ -511,7 +512,10 @@ function wireUI(){
 }
 
 wireUI();
+renderRows([], {showBaustelle:false, showStop2:false, showStop3:false});
 loadData();
 </script>
 </body>
 </html>
+
+  
