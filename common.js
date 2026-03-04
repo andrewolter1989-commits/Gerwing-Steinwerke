@@ -147,3 +147,23 @@ function buildRates(rows){
 
 window.buildZones = buildZones;
 window.buildRates = buildRates;
+
+// ------------------------------------------------------------
+// Small fetch helper
+//
+// When running on GitHub Pages, browsers may aggressively cache CSV/JSON.
+// We add a cache-busting query so updates become visible immediately.
+//
+// IMPORTANT: Some HTML pages call `fetchText()` directly.
+// If it is missing, the whole app fails to load data.
+// ------------------------------------------------------------
+async function fetchText(path){
+  const url = `${path}?v=${Date.now()}`;
+  const resp = await fetch(url, { cache: 'no-store' });
+  if(!resp.ok){
+    throw new Error(`Konnte Datei nicht laden: ${path} (HTTP ${resp.status})`);
+  }
+  return await resp.text();
+}
+
+window.fetchText = fetchText;
