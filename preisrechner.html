@@ -258,7 +258,94 @@ function bandForWeight(ratesMap, forwarder, kg){
   return null;
 }
 
-function setSummary({stops, totalKg, opts, best: cheapest});
+function setSummary({stops, totalKg, stopCount, baustelle, best}){
+  const plz1 = stops?.[0]?.plz || "—";
+  const optParts = [];
+  if(baustelle) optParts.push("Baustelle");
+  if(stopCount>=2) optParts.push("2. Stopp");
+  if(stopCount>=3) optParts.push("3. Stopp");
+  const optTxt = optParts.length ? optParts.join(", ") : "—";
+
+  const totalTxt = (totalKg!=null && !Number.isNaN(totalKg)) ? (fmtKg(totalKg) + " kg") : "—";
+  const stopLabel = stopCount===1 ? "1 Stop" : (stopCount + " Stops");
+  const bt = baustelle ? "Baustellentour" : "Standard";
+
+  const stopDesc = (stops||[]).map((s, i) => {
+    const n = i+1;
+    const p = s.plz || "—";
+    const k = (s.kg!=null && !Number.isNaN(s.kg)) ? (fmtKg(s.kg) + " kg") : "—";
+    return `PLZ${n}: ${p} / Gewicht${n}: ${k}`;
+  }).join(" | ");
+
+  document.getElementById("summaryLeft").innerHTML =
+    `PLZ: <b>${plz1}</b><br>`+
+    `Gewicht: <b>${totalTxt}</b><br>`+
+    `Optionen: <b>${optTxt}</b><br><br>`+
+    `Gesamtgewicht / Stops / Baustelle: <b>${totalTxt} / ${stopLabel} / ${bt}</b><br>`+
+    `Stops: <b>${stopDesc || "—"}</b>`;
+
+  if(best && best.name && best.price!=null){
+    document.getElementById("summaryRight").innerHTML =
+      `<div class="summaryTitle">Günstigster Anbieter</div><div class="summaryBest">${best.name} (${fmtEur(best.price)})</div>`;
+  }else{
+    document.getElementById("summaryRight").innerHTML =
+      `<div class="summaryTitle">Günstigster Anbieter</div><div class="summaryBest">—</div>`;
+  }
+}
+
+async function loadData(){
+  const werk = (qsParam("werk") || qsParam("work") || "holdorf").toLowerCase();
+  const pretty = werk==="clausnitz" ? "Werk Clausnitz" : "Werk Holdorf";
+  document.getElementById("title").textContent = `Gerwing Steinwerke Preisrechner — ${pretty}`;
+
+  const zonesFile = `zones_${werk}.csv`;
+  const ratesFile = `rates_${werk}.csv`;
+  const floFile = `floater_${werk}.json`;
+  const surFile = `surcharges_${werk}.json`;
+
+  try{
+    const [zTxt, rTxt, fTxt, sTxt] = await Promise.all([
+      fetchText(zonesFile),
+      fetchText(ratesFile),
+      fetchText(floFile),
+      fetchText(surFile),
+    ]);
+    const zonesRows = parseCsv(zTxt);
+    const ratesRows = parseCsv(rTxt);
+    const zones = buildZones(zonesRows);
+    const rates = buildRates(ratesRows);
+    const flo = JSON.parse(fTxt);
+    const sur = JSON.parse(sTxt);
+
+    // forwarders = intersection of zones & rates (stable)
+    const set = new Set([...zones.keys()].filter(x => rates.has(x)));
+    const forwarders = [...set].sort((a,b)=>a.localeCompare(b,"de"));
+
+    DATA = {werk, zones, rates, floater: flo||{}, surcharges: sur||{}, forwarders};
+    showHint(`Daten geladen: ${forwarders.length} Spediteure.`);
+  }catch(e){
+    showErr(e.message || String(e));
+  }
+}
+
+function wireUI(){
+  document.getElementById("btnCalc").addEventListener("click", calc);
+  document.getElementById("btnReset").addEventListener("click", ()=>{
+    clearErr(); clearHint();
+    for(const id of ["plz1","w1","plz2","w2","plz3","w3"]){ document.getElementById(id).value=""; }
+    for(const id of ["chkBaustelle","chk2","chk3"]){ document.getElementById(id).checked=false; }
+    document.getElementById("stop2Box").classList.add("d-none");
+    document.getElementById("stop3Box").classList.add("d-none");
+    document.getElementById("tbody").innerHTML = `<tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>`;
+    document.getElementById("summaryLeft").innerHTML = `
+      <div><b>PLZ:</b> —</div>
+      <div><b>Gewicht:</b> —</div>
+      <div><b>Optionen:</b> —</div>
+      <div class="mt-2"><b>Gesamtgewicht / Stops / Baustelle:</b> —</div>
+      <div><b>Stops:</b> —</div>
+    `;
+    document.getElementById("summaryRight").innerHTML = `<div class="fw-bold">Günstigster Anbieter</div><div>—</div>`;
+  });
 
   const chk2 = document.getElementById("chk2");
   const chk3 = document.getElementById("chk3");
