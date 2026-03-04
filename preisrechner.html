@@ -352,6 +352,39 @@ function setSummary(summary){
     }).join('');
   }
 
+  function validateStops(){
+    const stops = [];
+
+    const plz1 = String(document.getElementById("plz1").value || "").trim();
+    const kg1 = num(document.getElementById("w1").value);
+    if(!plz1 || !kg1){
+      throw new Error("PLZ und Gewicht sind Pflichtfelder.");
+    }
+    stops.push({plz: plz1, kg: kg1});
+
+    const chk2 = document.getElementById("chk2").checked;
+    const chk3 = document.getElementById("chk3").checked;
+
+    if(chk2){
+      const plz2 = String(document.getElementById("plz2").value || "").trim();
+      const kg2 = num(document.getElementById("w2").value);
+      if(!plz2 || !kg2){
+        throw new Error("Für den 2. Stopp sind PLZ 2 und Gewicht 2 Pflichtfelder.");
+      }
+      stops.push({plz: plz2, kg: kg2});
+    }
+
+    if(chk3){
+      const plz3 = String(document.getElementById("plz3").value || "").trim();
+      const kg3 = num(document.getElementById("w3").value);
+      if(!plz3 || !kg3){
+        throw new Error("Für den 3. Stopp sind PLZ 3 und Gewicht 3 Pflichtfelder.");
+      }
+      stops.push({plz: plz3, kg: kg3});
+    }
+
+    return stops;
+  }
 
   function calc(){
   clearErr();
@@ -476,7 +509,7 @@ function setSummary(summary){
     totalKg,
     stopCount: stops.length,
     baustelle: document.getElementById("chkBaustelle").checked,
-    best: best
+    best: cheapest
   });
 }
 
