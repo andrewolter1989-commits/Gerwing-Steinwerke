@@ -260,22 +260,29 @@ function bandForWeight(ratesMap, forwarder, kg){
 
 function setSummary(summary){
     // summary: {stops:[], totalKg:number, stopCount:number, baustelle:boolean, best:{name,total}|null}
+    // IMPORTANT: show total weight (sum of all active stops), not just stop 1.
     const s = summary || {};
-    const plz = (s.stops?.[0]?.plz) || '—';
-    const w1 = (s.stops?.[0]?.kg) ?? null;
+    const stops = Array.isArray(s.stops) ? s.stops : [];
+
+    // Quick scan fields
+    document.getElementById('sumPlz').textContent = stops[0]?.plz ?? '—';
+    const totalKg = Number(s.totalKg);
+    document.getElementById('sumGew').textContent = Number.isFinite(totalKg) ? fmtKg(totalKg) : '—';
+
+    // Options
+    const stopCount = Number(s.stopCount || stops.length || 1);
     const opts = [];
-    if(s.baustelle) opts.push('Baustelle');
-    if((s.stopCount||1) >= 2) opts.push('2. Stopp');
-    if((s.stopCount||1) >= 3) opts.push('3. Stopp');
+    if(!!s.baustelle) opts.push('Baustelle');
+    if(stopCount >= 2) opts.push('2. Stopp');
+    if(stopCount >= 3) opts.push('3. Stopp');
+    document.getElementById('sumOpt').textContent = opts.length ? opts.join(', ') : '—';
 
-    document.getElementById('sumPlz').textContent = plz;
-    document.getElementById('sumGew').textContent = fmtKg(w1)
-    document.getElementById('sumOpt').textContent = opts.length? opts.join(', ') : '—';
-
+    // Totals line
     document.getElementById('sumTotals').textContent =
-      `${fmtKg(s.totalKg||0)} / ${(s.stopCount||1)} Stop${(s.stopCount||1)>1?'ps':''} / ${s.baustelle?'Baustellentour':'Standard'}`;
+      `${Number.isFinite(totalKg) ? fmtKg(totalKg) : '—'} / ${stopCount} Stop${stopCount>1?'ps':''} / ${s.baustelle?'Baustellentour':'Standard'}`;
 
-    const stopsLine = (s.stops||[]).map((st,i)=>`PLZ${i+1}: ${st.plz} / Gewicht${i+1}: ${fmtKg(st.kg)}`).join(' | ');
+    // Full breakdown
+    const stopsLine = stops.map((st,i)=>`PLZ${i+1}: ${st.plz} / Gewicht${i+1}: ${fmtKg(st.kg)}`).join(' | ');
     document.getElementById('sumStops').textContent = stopsLine || '—';
 
     const best = s.best;
