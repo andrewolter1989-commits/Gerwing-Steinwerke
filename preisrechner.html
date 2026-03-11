@@ -329,7 +329,7 @@ async function loadData(){
 }
 
 function wireUI(){
-  document.getElementById("btnCalc").addEventListener("click", calc);
+  document.getElementById("btnCalc").addEventListener("click", window.calc());
   document.getElementById("btnReset").addEventListener("click", ()=>{
     clearErr(); clearHint();
     for(const id of ["plz1","w1","plz2","w2","plz3","w3"]){ document.getElementById(id).value=""; }
@@ -353,6 +353,7 @@ function wireUI(){
   chk3.addEventListener("change", ()=>{ document.getElementById("stop3Box").classList.toggle("d-none", !chk3.checked); });
 }
 
+window.calc = calc;
 wireUI();
 renderRows([], {showBaustelle:false, showStop2:false, showStop3:false});
 loadData();
