@@ -258,266 +258,39 @@ function bandForWeight(ratesMap, forwarder, kg){
   return null;
 }
 
-function setSummary(summary){
-    // summary: {stops:[], totalKg:number, stopCount:number, baustelle:boolean, best:{name,total}|null}
-    // IMPORTANT: show total weight (sum of all active stops), not just stop 1.
-    const s = summary || {};
-    const stops = Array.isArray(s.stops) ? s.stops : [];
+function setSummary({stops, totalKg, stopCount, baustelle, best}){
+  const plz1 = stops?.[0]?.plz || "—";
+  const optParts = [];
+  if(baustelle) optParts.push("Baustelle");
+  if(stopCount>=2) optParts.push("2. Stopp");
+  if(stopCount>=3) optParts.push("3. Stopp");
+  const optTxt = optParts.length ? optParts.join(", ") : "—";
 
-    // Quick scan fields
-    document.getElementById('sumPlz').textContent = stops[0]?.plz ?? '—';
-    const totalKg = Number(s.totalKg);
-    document.getElementById('sumGew').textContent = Number.isFinite(totalKg) ? fmtKg(totalKg) : '—';
+  const totalTxt = (totalKg!=null && !Number.isNaN(totalKg)) ? (fmtKg(totalKg) + " kg") : "—";
+  const stopLabel = stopCount===1 ? "1 Stop" : (stopCount + " Stops");
+  const bt = baustelle ? "Baustellentour" : "Standard";
 
-    // Options
-    const stopCount = Number(s.stopCount || stops.length || 1);
-    const opts = [];
-    if(!!s.baustelle) opts.push('Baustelle');
-    if(stopCount >= 2) opts.push('2. Stopp');
-    if(stopCount >= 3) opts.push('3. Stopp');
-    document.getElementById('sumOpt').textContent = opts.length ? opts.join(', ') : '—';
+  const stopDesc = (stops||[]).map((s, i) => {
+    const n = i+1;
+    const p = s.plz || "—";
+    const k = (s.kg!=null && !Number.isNaN(s.kg)) ? (fmtKg(s.kg) + " kg") : "—";
+    return `PLZ${n}: ${p} / Gewicht${n}: ${k}`;
+  }).join(" | ");
 
-    // Totals line
-    document.getElementById('sumTotals').textContent =
-      `${Number.isFinite(totalKg) ? fmtKg(totalKg) : '—'} / ${stopCount} Stop${stopCount>1?'ps':''} / ${s.baustelle?'Baustellentour':'Standard'}`;
+  document.getElementById("summaryLeft").innerHTML =
+    `PLZ: <b>${plz1}</b><br>`+
+    `Gewicht: <b>${totalTxt}</b><br>`+
+    `Optionen: <b>${optTxt}</b><br><br>`+
+    `Gesamtgewicht / Stops / Baustelle: <b>${totalTxt} / ${stopLabel} / ${bt}</b><br>`+
+    `Stops: <b>${stopDesc || "—"}</b>`;
 
-    // Full breakdown
-    const stopsLine = stops.map((st,i)=>`PLZ${i+1}: ${st.plz} / Gewicht${i+1}: ${fmtKg(st.kg)}`).join(' | ');
-    document.getElementById('sumStops').textContent = stopsLine || '—';
-
-    const best = s.best;
-    document.getElementById('bestName').textContent = best ? best.name : '—';
-    document.getElementById('bestPrice').textContent = best ? `(${money(best.total)})` : '';
+  if(best && best.name && best.price!=null){
+    document.getElementById("summaryRight").innerHTML =
+      `<div class="summaryTitle">Günstigster Anbieter</div><div class="summaryBest">${best.name} (${fmtEur(best.price)})</div>`;
+  }else{
+    document.getElementById("summaryRight").innerHTML =
+      `<div class="summaryTitle">Günstigster Anbieter</div><div class="summaryBest">—</div>`;
   }
-
-
-  function renderRows(rows, view){
-    // view: {showBaustelle, showStop2, showStop3}
-    const v = Object.assign({showBaustelle:false, showStop2:false, showStop3:false}, view||{});
-    const cols = [
-      {key:'forwarder', label:'Spediteur'},
-      {key:'zone', label:'Zone'},
-      {key:'base', label:'Basis (€)'},
-    ];
-    if(v.showBaustelle) cols.push({key:'baustelle', label:'Baustelle (€)'});
-    if(v.showStop2) cols.push({key:'stop2', label:'2. Stopp (€)'});
-    if(v.showStop3) cols.push({key:'stop3', label:'3. Stopp (€)'});
-    cols.push(
-      {key:'floaterPct', label:'Floater (%)'},
-      {key:'floaterEur', label:'Floater (€)'},
-      {key:'total', label:'Preis (€)'},
-      {key:'reason', label:'Grund'}
-    );
-
-    // Build header
-    const theadRow = document.getElementById('theadRow');
-    theadRow.innerHTML = cols.map(c=>`<th>${c.label}</th>`).join('');
-
-    // Find cheapest (valid totals only)
-    const valid = rows.filter(r => typeof r.total === 'number' && isFinite(r.total));
-    const minTotal = valid.length ? Math.min(...valid.map(r=>r.total)) : null;
-
-    // The table body in the markup uses id="tbody".
-    // Using a wrong id (e.g. "rows") makes body null and breaks the script before data loading.
-    const body = document.getElementById('tbody');
-    if(!rows.length){
-      body.innerHTML = `<tr><td colspan="${cols.length}" class="text-muted">Noch keine Berechnung.</td></tr>`;
-      return;
-    }
-
-    const showBlankZero = (n)=> (n===0 ? '' : money(n));
-    const showBlankPct = (p)=> (p===0 ? '' : (String(p).replace('.',',') + '%'));
-
-    body.innerHTML = rows.map(r=>{
-      const isBest = (minTotal!==null && typeof r.total==='number' && Math.abs(r.total-minTotal)<0.0001);
-      const trClass = isBest ? 'table-success' : '';
-      const cells = [];
-      cells.push(`<td>${r.forwarder}</td>`);
-      cells.push(`<td>${r.zone ?? '—'}</td>`);
-      cells.push(`<td>${r.base!=null? money(r.base): '—'}</td>`);
-
-      if(v.showBaustelle){
-        let val = '';
-        if(r.baustelleIncluded) val = 'inkl.';
-        else if(typeof r.baustelle === 'number') val = showBlankZero(r.baustelle);
-        cells.push(`<td>${val}</td>`);
-      }
-      if(v.showStop2){
-        const val = (typeof r.stop2 === 'number') ? showBlankZero(r.stop2) : '';
-        cells.push(`<td>${val}</td>`);
-      }
-      if(v.showStop3){
-        const val = (typeof r.stop3 === 'number') ? showBlankZero(r.stop3) : '';
-        cells.push(`<td>${val}</td>`);
-      }
-
-      cells.push(`<td>${r.floaterPct!=null? showBlankPct(r.floaterPct): ''}</td>`);
-      cells.push(`<td>${typeof r.floaterEur==='number'? (r.floaterEur===0?'':money(r.floaterEur)) : ''}</td>`);
-      cells.push(`<td>${typeof r.total==='number'? money(r.total): '—'}</td>`);
-      cells.push(`<td>${r.reason||''}</td>`);
-      return `<tr class="${trClass}">${cells.join('')}</tr>`;
-    }).join('');
-  }
-
-  function validateStops(){
-    const stops = [];
-
-    const plz1 = String(document.getElementById("plz1").value || "").trim();
-    const kg1 = num(document.getElementById("w1").value);
-    if(!plz1 || !kg1){
-      throw new Error("PLZ und Gewicht sind Pflichtfelder.");
-    }
-    stops.push({plz: plz1, kg: kg1});
-
-    const chk2 = document.getElementById("chk2").checked;
-    const chk3 = document.getElementById("chk3").checked;
-
-    if(chk2){
-      const plz2 = String(document.getElementById("plz2").value || "").trim();
-      const kg2 = num(document.getElementById("w2").value);
-      if(!plz2 || !kg2){
-        throw new Error("Für den 2. Stopp sind PLZ 2 und Gewicht 2 Pflichtfelder.");
-      }
-      stops.push({plz: plz2, kg: kg2});
-    }
-
-    if(chk3){
-      const plz3 = String(document.getElementById("plz3").value || "").trim();
-      const kg3 = num(document.getElementById("w3").value);
-      if(!plz3 || !kg3){
-        throw new Error("Für den 3. Stopp sind PLZ 3 und Gewicht 3 Pflichtfelder.");
-      }
-      stops.push({plz: plz3, kg: kg3});
-    }
-
-    return stops;
-  }
-
-  function calc(){
-  clearErr();
-  clearHint();
-  if(!DATA) { showErr("Daten sind noch nicht geladen."); return; }
-
-  let stops, opts=[];
-  try{
-    stops = validateStops();
-  }catch(e){
-    showErr(e.message);
-    return;
-  }
-  if(document.getElementById("chkBaustelle").checked) opts.push("Baustelle");
-  if(document.getElementById("chk2").checked) opts.push("2. Stopp");
-  if(document.getElementById("chk3").checked) opts.push("3. Stopp");
-
-  const totalKg = stops.reduce((s,x)=>s+x.kg,0);
-
-  const rows=[];
-  let cheapest=null;
-  let cheapestVal=Infinity;
-
-  for(const forwarder of DATA.forwarders){
-    // zone based on first stop (typical); you can extend per stop if needed
-    const zone = zoneForPlz(DATA.zones, forwarder, stops[0].plz);
-    if(zone==null){
-      rows.push({forwarder, zone:"—", base:NaN, baustelle:NaN, baustelleIncluded:false, stop2:NaN, stop3:NaN, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Keine Zone"});
-      continue;
-    }
-    const band = bandForWeight(DATA.rates, forwarder, totalKg);
-    if(!band){
-      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:"Kein Gewichtsband"});
-      continue;
-    }
-    const base = band.prices.get(zone);
-    if(!Number.isFinite(base)){
-      rows.push({forwarder, zone, base:NaN, baustelle:0, stop2:0, stop3:0, floaterPct: DATA.floater[forwarder] ?? 0, floaterEur:NaN, total:NaN, reason:`Kein Preis für Zone ${zone}`});
-      continue;
-    }
-
-    let reason = "";
-    // surcharges (supports both JSON formats)
-    const sur = DATA.surcharges || {};
-    const getSur = (key)=>{
-      // format A: { "Forwarder": {"baustelle":0,"stop2":0,"stop3":0} }
-      if(sur[forwarder] && typeof sur[forwarder] === "object"){
-        const v = sur[forwarder][key];
-        if(Number.isFinite(v)) return v;
-      }
-      // format B: { "baustelle": {"Forwarder":0}, ... }
-      if(sur[key] && typeof sur[key] === "object"){
-        const v = sur[key][forwarder];
-        if(Number.isFinite(v)) return v;
-      }
-      return NaN;
-    };
-    const surHas = (key)=>{
-      if(sur[forwarder] && typeof sur[forwarder] === "object" && Object.prototype.hasOwnProperty.call(sur[forwarder], key)) return true;
-      if(sur[key] && typeof sur[key] === "object" && Object.prototype.hasOwnProperty.call(sur[key], forwarder)) return true;
-      return false;
-    };
-
-    let baustelle=0, s2=0, s3=0;
-    const forwarderName = forwarder;
-
-    // Some forwarders (e.g. Böckmann) have Baustellentarif already included in the base rates
-    const baustelleIncluded = !!(
-      (sur[forwarderName] && typeof sur[forwarderName] === "object" && (sur[forwarderName].baustelle_included || sur[forwarderName].baustelleIncluded || (sur[forwarderName].included && sur[forwarderName].included.baustelle)))
-      || forwarderName === "Böckmann"
-    );
-
-    if(document.getElementById("chkBaustelle").checked){
-      if(baustelleIncluded){
-        baustelle = 0;
-      } else if(!surHas("baustelle")) {
-        reason = "Keine Baustellenzustellung";
-      } else {
-        const v = getSur("baustelle");
-        if(Number.isFinite(v)) baustelle = v;
-        else reason = "Keine Baustellenzustellung";
-      }
-    }
-
-    if(document.getElementById("chk2").checked){
-      if(!surHas("stop2")) reason = reason || "Kein 2. Stopp";
-      else {
-        const v = getSur("stop2");
-        if(Number.isFinite(v)) s2 = v;
-        else reason = reason || "Kein 2. Stopp";
-      }
-    }
-
-    if(document.getElementById("chk3").checked){
-      if(!surHas("stop3")) reason = reason || "Kein 3. Stopp";
-      else {
-        const v = getSur("stop3");
-        if(Number.isFinite(v)) s3 = v;
-        else reason = reason || "Kein 3. Stopp";
-      }
-    }
-
-    const floPct = Number(DATA.floater[forwarder] ?? 0);
-    const floEur = round2(base * (floPct/100));
-    const total = reason ? NaN : round2(base + floEur + baustelle + s2 + s3);
-
-    rows.push({forwarder, zone, base, baustelle, baustelleIncluded, stop2:s2, stop3:s3, floaterPct:floPct, floaterEur:floEur, total, reason});
-
-    if(Number.isFinite(total) && total < cheapestVal){
-      cheapestVal = total;
-      cheapest = `${forwarder} (${money(total)} €)`;
-    }
-  }
-
-  renderRows(rows, {
-    showBaustelle: document.getElementById("chkBaustelle").checked,
-    showStop2: document.getElementById("chk2").checked,
-    showStop3: document.getElementById("chk3").checked
-  });
-  setSummary({
-    stops,
-    totalKg,
-    stopCount: stops.length,
-    baustelle: document.getElementById("chkBaustelle").checked,
-    best: cheapest
-  });
 }
 
 async function loadData(){
