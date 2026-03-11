@@ -1,143 +1,149 @@
-/* Shared helpers for Gerwing Steinwerke Preisrechner (GitHub Pages friendly) */
-(function(){
-  'use strict';
 
-  function getQueryParam(name, fallback=null){
-    try{
-      const url = new URL(window.location.href);
-      return url.searchParams.get(name) ?? fallback;
-    }catch(e){
-      // very old browsers
-      const m = new RegExp('[?&]'+name+'=([^&]+)').exec(window.location.search);
-      return m ? decodeURIComponent(m[1]) : fallback;
+function qsParam(name) {
+  const u = new URL(window.location.href);
+  return u.searchParams.get(name);
+}
+
+
+function num(v){
+  if(v===null || v===undefined) return 0;
+  // accepts numbers, "1.234,56", "1234.56", "1 234,56 €"
+  const s = String(v)
+    .replace(/\s+/g,'')
+    .replace(/€/g,'')
+    .replace(/\./g,'')      // thousands separator
+    .replace(/,/g,'.')       // decimal comma
+    .replace(/[^0-9.\-]/g,'');
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeHeader(s){
+  return String(s||"")
+    .trim()
+    .toLowerCase()
+    .replace(/\uFEFF/g,"")
+    .replace(/\s+/g," ")
+    .replace(/[^\w %]/g,""); // keep letters/numbers/underscore/space/%
+}
+
+function detectDelimiter(line){
+  const semi = (line.match(/;/g)||[]).length;
+  const comma = (line.match(/,/g)||[]).length;
+  return semi >= comma ? ";" : ",";
+}
+
+async function fetchText(path){
+  const res = await fetch(path, {cache:"no-store"});
+  if(!res.ok) throw new Error(`Konnte Datei nicht laden: ${path} (${res.status})`);
+  return await res.text();
+}
+
+function parseCsv(text){
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length>0);
+  if(lines.length===0) return [];
+  const delim = detectDelimiter(lines[0]);
+  const rows = lines.map(l => l.split(delim).map(c => c.trim()));
+  return rows;
+}
+
+function parseEuro(str){
+  if(str==null) return NaN;
+  const s = String(str).trim();
+  if(!s) return NaN;
+  // remove currency, spaces
+  const cleaned = s.replace(/€/g,"").replace(/\s/g,"");
+  // german format "3.465,00"
+  const norm = cleaned.replace(/\./g,"").replace(",",".");
+  const n = Number(norm);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+function money(n){
+  if(!Number.isFinite(n)) return "—";
+  return n.toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+
+// ---- Shared helpers used by editors & price calculator ----
+function findHeaderRow(rows, required){
+  for(let i=0;i<rows.length;i++){
+    const norm = rows[i].map(normalizeHeader);
+    let ok=true;
+    for(const r of required){
+      if(!norm.some(h=>h.includes(r))) { ok=false; break; }
     }
+    if(ok) return {i, norm};
   }
+  return null;
+}
 
-  async function fetchText(url){
-    const res = await fetch(url, { cache: 'no-store' });
-    if(!res.ok){
-      throw new Error(`HTTP ${res.status} beim Laden von ${url}`);
+function buildZones(rows){
+  const found = findHeaderRow(rows, ["forwarder","dest from","dest to","zone"]);
+  if(!found) throw new Error("zones: Header nicht gefunden.");
+  const header = found.norm;
+  const idxF = header.findIndex(h=>h.includes("forwarder"));
+  const idxFrom = header.findIndex(h=>h.includes("dest from"));
+  const idxTo = header.findIndex(h=>h.includes("dest to"));
+  const idxZone = header.findIndex(h=>h.includes("zone"));
+  const map = new Map();
+  for(let r=found.i+1;r<rows.length;r++){
+    const row = rows[r];
+    const f = row[idxF]?.trim();
+    if(!f) continue;
+    const from = parseInt(row[idxFrom],10);
+    const to = parseInt(row[idxTo],10);
+    const zone = parseInt(row[idxZone],10);
+    if(!Number.isFinite(from) || !Number.isFinite(to) || !Number.isFinite(zone)) continue;
+    if(!map.has(f)) map.set(f, []);
+    map.get(f).push({from,to,zone});
+  }
+  // sort ranges
+  for(const [k,v] of map.entries()){
+    v.sort((a,b)=>a.from-b.from);
+  }
+  return map;
+}
+
+function buildRates(rows){
+  const found = findHeaderRow(rows, ["forwarder","chg from","chg to","unit"]);
+  if(!found) throw new Error("rates: Header nicht gefunden.");
+  const header = found.norm;
+  const idxF = header.findIndex(h=>h.includes("forwarder"));
+  const idxFrom = header.findIndex(h=>h.includes("chg from"));
+  const idxTo = header.findIndex(h=>h.includes("chg to"));
+  const idxUnit = header.findIndex(h=>h.includes("unit"));
+  // zone columns
+  const zoneCols = [];
+  for(let i=0;i<header.length;i++){
+    const m = header[i].match(/zone\s*(\d+)/);
+    if(m) zoneCols.push({zone: parseInt(m[1],10), idx:i});
+  }
+  if(zoneCols.length===0) throw new Error("rates: Keine Zone-Spalten gefunden.");
+  const map = new Map();
+  for(let r=found.i+1;r<rows.length;r++){
+    const row = rows[r];
+    const f = row[idxF]?.trim();
+    if(!f) continue;
+    const from = parseEuro(row[idxFrom]);
+    const to = parseEuro(row[idxTo]);
+    const unit = (row[idxUnit]||"").trim();
+    if(!Number.isFinite(from) || !Number.isFinite(to)) continue;
+    const prices = new Map();
+    for(const zc of zoneCols){
+      const p = parseEuro(row[zc.idx]);
+      if(Number.isFinite(p)) prices.set(zc.zone, p);
     }
-    return await res.text();
+    if(!map.has(f)) map.set(f, []);
+    map.get(f).push({from,to,unit,prices});
   }
-
-  async function fetchJson(url){
-    const txt = await fetchText(url);
-    try{ return JSON.parse(txt); }
-    catch(e){ throw new Error(`JSON ungültig: ${url}`); }
+  for(const [k,v] of map.entries()){
+    v.sort((a,b)=>a.from-b.from);
   }
+  return map;
+}
 
-  function parseCsv(csvText){
-    const lines = (csvText||'')
-      .replace(/\r\n/g,'\n')
-      .replace(/\r/g,'\n')
-      .split('\n')
-      .map(l=>l.trimEnd())
-      .filter(l=>l.trim().length>0);
-
-    if(lines.length===0) return [];
-
-    // Detect delimiter ; or , (prefer ;)
-    const headerLine = lines[0];
-    const delim = headerLine.includes(';') ? ';' : ',';
-
-    const parseLine = (line)=>{
-      const out=[];
-      let cur='';
-      let inQ=false;
-      for(let i=0;i<line.length;i++){
-        const ch=line[i];
-        if(ch==='"'){
-          if(inQ && line[i+1]==='"'){ cur+='"'; i++; }
-          else inQ=!inQ;
-        }else if(ch===delim && !inQ){
-          out.push(cur);
-          cur='';
-        }else{
-          cur+=ch;
-        }
-      }
-      out.push(cur);
-      return out.map(s=>s.trim());
-    };
-
-    const headers = parseLine(lines[0]).map(h=>h.replace(/^\uFEFF/,''));
-    const rows=[];
-    for(let i=1;i<lines.length;i++){
-      const cols=parseLine(lines[i]);
-      const row={};
-      for(let c=0;c<headers.length;c++){
-        row[headers[c]] = (cols[c] ?? '').trim();
-      }
-      rows.push(row);
-    }
-    return rows;
-  }
-
-  function parseEuroNumber(v){
-    if(v==null) return NaN;
-    if(typeof v==='number') return v;
-    let s=String(v).trim();
-    if(s==='') return NaN;
-    s=s.replace(/\s/g,'');
-    // Remove currency symbols
-    s=s.replace(/€/g,'');
-    // Convert German format 1.234,56 -> 1234.56
-    // If both . and , exist assume . thousands and , decimal.
-    if(s.includes(',') && s.includes('.')){
-      s=s.replace(/\./g,'').replace(',', '.');
-    }else if(s.includes(',')){
-      // If only comma, treat as decimal separator
-      s=s.replace(',', '.');
-    }
-    // Remove any non-number leftover
-    s=s.replace(/[^0-9.+-]/g,'');
-    const n=Number(s);
-    return Number.isFinite(n) ? n : NaN;
-  }
-
-  function formatEuro(n){
-    if(n==null || !Number.isFinite(n)) return '—';
-    return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function formatKg(n){
-    if(n==null || !Number.isFinite(n)) return '—';
-    return n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  // Build zones mapping from zones csv (expects columns: PLZ, Zone or similar)
-  function buildZones(rows){
-    const map = new Map();
-    for(const r of rows){
-      const plz = (r.PLZ ?? r.plz ?? r.Zip ?? r.zip ?? r.Postleitzahl ?? '').toString().trim();
-      const zoneRaw = (r.Zone ?? r.zone ?? r.ZONE ?? '').toString().trim();
-      if(!plz) continue;
-      const zone = zoneRaw ? Number(zoneRaw) : NaN;
-      if(Number.isFinite(zone)) map.set(plz, zone);
-    }
-    return map;
-  }
-
-  // Expose
-  window.GS = {
-    getQueryParam,
-    fetchText,
-    fetchJson,
-    parseCsv,
-    parseEuroNumber,
-    formatEuro,
-    formatKg,
-    buildZones
-  };
-
-  // Backwards-compatible globals (older pages call these directly)
-  window.getQueryParam = getQueryParam;
-  window.fetchText = fetchText;
-  window.fetchJson = fetchJson;
-  window.parseCsv = parseCsv;
-  window.parseEuroNumber = parseEuroNumber;
-  window.formatEuro = formatEuro;
-  window.formatKg = formatKg;
-  window.buildZones = buildZones;
-})();
+window.buildZones = buildZones;
+window.buildRates = buildRates;
