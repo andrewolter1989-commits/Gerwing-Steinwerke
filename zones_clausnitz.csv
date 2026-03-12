@@ -1,5 +1,4 @@
-﻿Key;;;;
-Forwarder;Dest From;Dest To;Zone;Label
+﻿Forwarder;Dest From;Dest To;Zone;Label
 Koch;1000;1999;1;de 01
 Koch;2000;2999;2;de 02
 Koch;3000;3999;3;de 03
