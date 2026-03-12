@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gerwing Steinwerke Preisrechner</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{background:#f4f7f9;color:#0b2230;}
+    .brand{color:#0a5b7a;font-weight:900;letter-spacing:.2px}
+    .card{border-radius:16px; box-shadow:0 6px 24px rgba(0,0,0,.08);}
+    .table thead th{background:#0a5b7a;color:#fff;border-color:#0a5b7a;white-space:nowrap;}
+    .btn-primary{background:#0a5b7a;border-color:#0a5b7a;font-weight:800;border-radius:12px;padding:10px 18px;}
+    .btn-outline-secondary{border-radius:12px;padding:10px 18px;font-weight:700;}
+    .summary{background:#d9f2de;border-radius:10px;border:1px solid rgba(0,0,0,.05);}
+    .hint{background:#fff3cd;border:1px solid rgba(0,0,0,.06);border-radius:10px;}
+    .err{background:#f8d7da;border:1px solid rgba(220,53,69,.25);border-radius:10px;}
+    .muted{color:#6c757d}
+  </style>
+</head>
+<body>
+<div class="container py-4" style="max-width:1200px">
+  <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-3">
+    <div>
+      <h1 class="display-6 brand mb-0" id="title">Gerwing Steinwerke Preisrechner</h1>
+    </div>
+    <a class="btn btn-outline-secondary" href="index.html">Zurück</a>
+  </div>
+
+  <div class="card p-4 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label fw-bold">PLZ</label>
+        <input id="plz1" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+      </div>
+      <div class="col-md-5">
+        <label class="form-label fw-bold">Gewicht (kg)</label>
+        <input id="w1" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+      </div>
+      <div class="col-md-2 d-grid gap-2">
+        <button id="btnCalc" class="btn btn-primary">Berechnen</button>
+        <button id="btnReset" class="btn btn-outline-secondary">Zurücksetzen</button>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-4 mt-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="chkBaustelle">
+        <label class="form-check-label" for="chkBaustelle">Baustelle</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="chk2">
+        <label class="form-check-label" for="chk2">Zweiter Stopp</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="chk3">
+        <label class="form-check-label" for="chk3">Dritter Stopp</label>
+      </div>
+    </div>
+
+    <div id="stop2Box" class="card p-3 mt-3 d-none">
+      <div class="fw-bold mb-2">2. Stopp</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">PLZ 2</label>
+          <input id="plz2" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Gewicht 2 (kg)</label>
+          <input id="w2" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <div id="stop3Box" class="card p-3 mt-3 d-none">
+      <div class="fw-bold mb-2">3. Stopp</div>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">PLZ 3</label>
+          <input id="plz3" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Gewicht 3 (kg)</label>
+          <input id="w3" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+        </div>
+      </div>
+    </div>
+
+    <div id="msgErr" class="err p-3 mt-3 d-none"></div>
+    <div id="msgHint" class="hint p-3 mt-3 d-none"></div>
+
+    <div class="summary p-3 mt-3">
+      <div class="row">
+        <div class="col-md-7" id="summaryLeft">
+          <div><b>PLZ:</b> —</div>
+          <div><b>Gewicht:</b> —</div>
+          <div><b>Optionen:</b> —</div>
+          <div class="mt-2"><b>Gesamtgewicht / Stops / Baustelle:</b> —</div>
+          <div><b>Stops:</b> —</div>
+        </div>
+        <div class="col-md-5 text-md-end" id="summaryRight">
+          <div class="fw-bold">Günstigster Anbieter</div>
+          <div>—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-responsive card">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th>Spediteur</th>
+          <th>Zone</th>
+          <th>Basis (€)</th>
+          <th>Baustelle (€)</th>
+          <th>2. Stopp (€)</th>
+          <th>3. Stopp (€)</th>
+          <th>Floater (%)</th>
+          <th>Floater (€)</th>
+          <th>Preis (€)</th>
+          <th>Grund</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script defer src="common.js"></script>
+<script defer src="preisrechner.js"></script>
+</body></html>
