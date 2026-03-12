@@ -239,7 +239,7 @@
 
   function renderTable(rows, opts){
     const tbody = $('tbody');
-    const theadRow = $('theadRow');
+    const theadRow = $('theadRow') || document.querySelector('thead tr');
     if(!tbody || !theadRow) return;
 
     const cols = buildColumns(opts);
