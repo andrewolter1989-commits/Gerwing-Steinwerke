@@ -1,13 +1,13 @@
 {
   "Berghegger": {
     "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "stop2": 90,
+    "stop3": 90
   },
   "Böckmann": {
     "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "stop2": 70,
+    "stop3": 70
   },
   "DB Schenker": {
     "baustelle": 0,
@@ -15,27 +15,27 @@
     "stop3": 0
   },
   "Elvis": {
-    "baustelle": 0,
+    "baustelle": 130,
     "stop2": 0,
     "stop3": 0
   },
   "Hartmann": {
     "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "stop2": 100,
+    "stop3": 150
   },
   "Koch": {
-    "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "baustelle": 150,
+    "stop2": 75,
+    "stop3": 75
   },
   "Oelrich": {
-    "baustelle": 0,
-    "stop2": 0,
-    "stop3": 0
+    "baustelle": 75,
+    "stop2": 40,
+    "stop3": 40
   },
   "Sievert": {
-    "baustelle": 0,
+    "baustelle": 90,
     "stop2": 0,
     "stop3": 0
   }
