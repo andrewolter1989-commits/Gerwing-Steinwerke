@@ -1,4 +1,4 @@
-/* Gerwing Steinwerke Preisrechner – App Logic (v6 stable) */
+/* Gerwing Steinwerke Preisrechner – App Logic (v6.3 stable) */
 (function(){
   'use strict';
 
@@ -18,7 +18,8 @@
   const SPECIAL = {
     baustelleIncludedForwarders: new Set(['Böckmann','Bockmann']), // base tariff switches to bau/freight; surcharge itself stays included
     baustelleBlockedForwarders: new Set(['Berghegger','Hartmann','DB Schenker']),
-    sievertForwarders: new Set(['Sievert'])
+    sievertForwarders: new Set(['Sievert']),
+    brueningTonForwarders: new Set(['Brüning','Bruening'])
   };
 
   const $ = (id)=>document.getElementById(id);
@@ -175,6 +176,9 @@
           reason = reason ? `${reason} / Keine Baustellenzustellung` : 'Keine Baustellenzustellung';
         } else if(SPECIAL.baustelleIncludedForwarders.has(forwarder)){
           baustelle = 'inkl.';
+        } else if(SPECIAL.brueningTonForwarders.has(forwarder)){
+          const tons = totalWeight(stops) / 1000;
+          baustelle = tons > 0 ? (tons * 3.5) : '';
         } else {
           const v = getSurchargeValue(forwarder, 'baustelle');
           if(Number.isFinite(v) && v > 0){
@@ -234,7 +238,7 @@
     $('sumPlz').textContent = stops[0]?.plz ? `PLZ1: ${stops[0].plz}` : '—';
     $('sumWeight').textContent = Number.isFinite(tw) ? G.formatKg(tw) : '—';
     $('sumOptions').textContent = optionsLabel();
-    $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} Stop${stops.length===1?'':'s'} / ${tourLabel()}`;
+    $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} ${stops.length===1?'Stopp':'Stopps'} / ${tourLabel()}`;
     $('sumStops').textContent = stops.map(s=>`PLZ${s.idx}: ${s.plz} / Gewicht${s.idx}: ${G.formatKg(s.weight)}`).join(' | ');
     $('bestName').textContent = (best && Number.isFinite(best.total)) ? `${best.forwarder} (${G.formatEuro(best.total)} €)` : '—';
   }
