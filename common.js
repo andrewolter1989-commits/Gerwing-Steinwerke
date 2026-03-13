@@ -117,13 +117,22 @@
   Gerwing.buildRatesIndex = function(rateRows){
     const index = new Map();
     const zoneCols = (row)=>Object.keys(row).filter(k=>/^Zone\s*\d+/i.test(k));
+    const normBereich = (v)=>String(v ?? '').trim().toLowerCase();
+
+    const pushBand = (key, band) => {
+      if(!key) return;
+      if(!index.has(key)) index.set(key, []);
+      index.get(key).push(band);
+    };
 
     for(const r of rateRows){
       const fwd = (r['Forwarder'] || r['forwarder'] || '').trim();
       if(!fwd) continue;
+      const bereich = normBereich(r['Bereich'] ?? r['bereich']);
       const from = Gerwing.toNumber(r['CHG from'] ?? r['CHG From'] ?? r['CHG_from']);
       const to = Gerwing.toNumber(r['CHG to'] ?? r['CHG To'] ?? r['CHG_to']);
       if(!Number.isFinite(from) || !Number.isFinite(to)) continue;
+
       const byZone = {};
       for(const zc of zoneCols(r)){
         const zn = String(zc).match(/(\d+)/)?.[1];
@@ -131,8 +140,15 @@
         const price = Gerwing.toNumber(r[zc]);
         if(Number.isFinite(price)) byZone[zn] = price;
       }
-      if(!index.has(fwd)) index.set(fwd, []);
-      index.get(fwd).push({from, to, byZone});
+
+      const band = {from, to, byZone};
+      // Base key always available for standard forwarders
+      pushBand(fwd, band);
+
+      // Composite key for special tariff branches, e.g. Böckmann freight/bau
+      if(bereich){
+        pushBand(`${fwd}|${bereich}`, band);
+      }
     }
 
     for(const [k, arr] of index.entries()){
@@ -140,29 +156,49 @@
       index.set(k, arr);
     }
 
+    const resolveKeys = (forwarder) => {
+      const f = String(forwarder ?? '').trim();
+      if(!f) return [];
+      const lower = f.toLowerCase();
+      const keys = [f];
+      // Alias handling for Böckmann freight/bau tariffs
+      if(lower === 'böckmann|freight' || lower === 'bockmann|freight'){
+        keys.unshift('Böckmann|freight','Bockmann|freight','Böckmann|freght','Bockmann|freght');
+      } else if(lower === 'böckmann|bau' || lower === 'bockmann|bau'){
+        keys.unshift('Böckmann|bau','Bockmann|bau');
+      }
+      return Array.from(new Set(keys));
+    };
+
     return {
-      listForwarders(){ return Array.from(index.keys()); },
+      listForwarders(){
+        return Array.from(index.keys()).filter(k => !k.includes('|'));
+      },
       priceFor(forwarder, kg, zone){
-        const arr = index.get(forwarder);
-        if(!arr) return null;
         const w = Gerwing.toNumber(kg);
         if(!Number.isFinite(w)) return null;
         const z = String(zone ?? '').trim();
         if(!z) return null;
-        for(const band of arr){
-          if(w >= band.from && w <= band.to){
-            const p = band.byZone[z];
-            return (p === undefined) ? null : p;
+        for(const key of resolveKeys(forwarder)){
+          const arr = index.get(key);
+          if(!arr) continue;
+          for(const band of arr){
+            if(w >= band.from && w <= band.to){
+              const p = band.byZone[z];
+              if(p !== undefined) return p;
+            }
           }
         }
         return null;
       },
       hasBand(forwarder, kg){
-        const arr = index.get(forwarder);
-        if(!arr) return false;
         const w = Gerwing.toNumber(kg);
         if(!Number.isFinite(w)) return false;
-        return arr.some(b => w >= b.from && w <= b.to);
+        for(const key of resolveKeys(forwarder)){
+          const arr = index.get(key);
+          if(arr && arr.some(b => w >= b.from && w <= b.to)) return true;
+        }
+        return false;
       }
     };
   };

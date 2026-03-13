@@ -16,7 +16,7 @@
   };
 
   const SPECIAL = {
-    baustelleIncludedForwarders: new Set(['Böckmann','Bockmann']),
+    baustelleIncludedForwarders: new Set(['Böckmann','Bockmann']), // base tariff switches to bau/freight; surcharge itself stays included
     baustelleBlockedForwarders: new Set(['Berghegger','Hartmann','DB Schenker']),
     sievertForwarders: new Set(['Sievert'])
   };
@@ -100,6 +100,9 @@
 
   function computeBaseForForwarder(sp, stops, applyBaz){
     const wt = totalWeight(stops);
+    const rateKey = (sp === 'Böckmann' || sp === 'Bockmann')
+      ? (applyBaz ? 'Böckmann|bau' : 'Böckmann|freight')
+      : sp;
     const reasons = [];
     const zones = [];
     let zoneDisplay = '—';
@@ -120,10 +123,10 @@
       for(let i=0;i<stops.length;i++){
         const s = stops[i];
         const z = zones[i];
-        const price = STATE.rates.priceFor(sp, s.weight, z);
+        const price = STATE.rates.priceFor(rateKey, s.weight, z);
         if(price === null){
           ok = false;
-          if(!STATE.rates.hasBand(sp, s.weight)) reasons.push(`Kein Gewichtsband (Stopp ${s.idx})`);
+          if(!STATE.rates.hasBand(rateKey, s.weight)) reasons.push(`Kein Gewichtsband (Stopp ${s.idx})`);
           else reasons.push(`Kein Preis für Zone ${z} (Stopp ${s.idx})`);
         } else totalBase += price;
       }
@@ -136,9 +139,9 @@
     for(let i=0;i<stops.length;i++){
       const s = stops[i];
       const z = zones[i];
-      const price = STATE.rates.priceFor(sp, wt, z);
+      const price = STATE.rates.priceFor(rateKey, wt, z);
       if(price === null){
-        if(!STATE.rates.hasBand(sp, wt)) reasons.push(`Kein Gewichtsband (Stopp ${s.idx})`);
+        if(!STATE.rates.hasBand(rateKey, wt)) reasons.push(`Kein Gewichtsband (Stopp ${s.idx})`);
         else reasons.push(`Kein Preis für Zone ${z} (Stopp ${s.idx})`);
       } else if(chosenBase === null || price > chosenBase){
         chosenBase = price;
