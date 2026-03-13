@@ -204,14 +204,15 @@
   };
 
   
+
   Gerwing.normalizeFloaterValue = function(v){
     if(v === null || v === undefined) return 0;
-    if(typeof v === 'number' || typeof v === 'string') {
+    if(typeof v === 'number' || typeof v === 'string'){
       const n = Gerwing.toNumber(v);
       return Number.isFinite(n) ? n : 0;
     }
     if(typeof v === 'object'){
-      const candidates = [v.value, v.pct, v.percent, v.floater, v.floaterPct];
+      const candidates = [v.value, v.pct, v.percent, v.floater, v.floaterPct, v.diesel, v.dieselfloater];
       for(const c of candidates){
         const n = Gerwing.toNumber(c);
         if(Number.isFinite(n)) return n;
@@ -220,6 +221,41 @@
     return 0;
   };
 
+  Gerwing.normalizeFloatersMap = function(raw, werk){
+    if(!raw || typeof raw !== 'object') return {};
+    // Direct map: { "Brüning": 4.5, ... }
+    const direct = {};
+    let directCount = 0;
+    for(const [k,v] of Object.entries(raw)){
+      if(['floaters','floater','werke','works','data'].includes(String(k).toLowerCase())) continue;
+      const n = Gerwing.normalizeFloaterValue(v);
+      if(Number.isFinite(n) && (typeof v !== 'object' || Object.keys(v).length || typeof v === 'number' || typeof v === 'string')){
+        direct[k] = n;
+        directCount++;
+      }
+    }
+    if(directCount) return direct;
+
+    // Nested common shapes
+    const w = String(werk||'').toLowerCase();
+    const candidates = [
+      raw.floaters, raw.floater, raw.data,
+      raw.werke && (raw.werke[werk] || raw.werke[w]),
+      raw.works && (raw.works[werk] || raw.works[w]),
+      raw[werk], raw[w]
+    ].filter(Boolean);
+
+    for(const c of candidates){
+      if(c && typeof c === 'object'){
+        const out = {};
+        for(const [k,v] of Object.entries(c)){
+          out[k] = Gerwing.normalizeFloaterValue(v);
+        }
+        return out;
+      }
+    }
+    return {};
+  };
 Gerwing.filesForWerk = function(werk){
     const w = (werk || '').toLowerCase();
     if(!w) return null;

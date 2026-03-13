@@ -98,12 +98,6 @@
     return Number.isFinite(v) ? v : null;
   }
 
-  function getFloaterPct(forwarder){
-    const raw = STATE.floaters[forwarder];
-    const v = G.normalizeFloaterValue ? G.normalizeFloaterValue(raw) : G.toNumber(raw);
-    return Number.isFinite(v) ? v : 0;
-  }
-
   function computeBaseForForwarder(sp, stops, applyBaz){
     const wt = totalWeight(stops);
     const rateKey = (sp === 'Böckmann' || sp === 'Bockmann')
@@ -169,62 +163,53 @@
     let baustelle = null;
     let stop2 = null;
     let stop3 = null;
-    let floaterPct = Number.isFinite(opts.floaterPct) ? opts.floaterPct : 0;
+    let floaterPct = opts.floaterPct;
     let floaterEuro = null;
     let total = null;
 
     if(base !== null){
       // Baustelle
       if(opts.baustelle){
-        const totalKg = totalWeight(stops);
-
-        // Sonderregel Brüning: 3,5 € pro Tonne bei Baustellenbelieferung
-        if(/^brüning$/i.test(forwarder) || /^bruening$/i.test(forwarder)){
-          const tons = totalKg / 1000;
-          baustelle = tons * 3.5;
-        }
-        else if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
+        if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
           base = null;
           reason = reason ? `${reason} / Keine Baustellenzustellung` : 'Keine Baustellenzustellung';
         } else if(SPECIAL.baustelleIncludedForwarders.has(forwarder)){
           baustelle = 'inkl.';
         } else {
           const v = getSurchargeValue(forwarder, 'baustelle');
-          if(Number.isFinite(v) && Math.abs(v) > 1e-9){
+          if(Number.isFinite(v) && v > 0){
             baustelle = v;
           } else {
-            // aktiv, aber kein Zuschlag gepflegt => leer
+            // active but no surcharge configured -> old tool displayed none/add 0 for allowed providers
             baustelle = '';
           }
         }
       }
 
-      // zweiter Stopp
+      // second stop surcharge when selected
       if(base !== null && opts.stop2){
         if(!(opts.baustelle && SPECIAL.baustelleBlockedForwarders.has(forwarder))){
           const v = getSurchargeValue(forwarder, 'stop2');
-          stop2 = (Number.isFinite(v) && Math.abs(v) > 1e-9) ? v : '';
+          stop2 = (Number.isFinite(v) && v > 0) ? v : '';
         }
       }
 
-      // dritter Stopp
+      // third stop surcharge when selected
       if(base !== null && opts.stop3){
         if(!(opts.baustelle && SPECIAL.baustelleBlockedForwarders.has(forwarder))){
           const v = getSurchargeValue(forwarder, 'stop3');
-          stop3 = (Number.isFinite(v) && Math.abs(v) > 1e-9) ? v : '';
+          stop3 = (Number.isFinite(v) && v > 0) ? v : '';
         }
       }
 
       if(base !== null){
-        floaterEuro = (Number.isFinite(floaterPct) && Math.abs(floaterPct) > 1e-9)
-          ? (base * floaterPct / 100)
-          : 0;
-
+        floaterPct = Number.isFinite(floaterPct) ? floaterPct : 0;
+        floaterEuro = base * floaterPct / 100;
         total = base
           + (typeof baustelle === 'number' ? baustelle : 0)
           + (typeof stop2 === 'number' ? stop2 : 0)
           + (typeof stop3 === 'number' ? stop3 : 0)
-          + (Number.isFinite(floaterEuro) ? floaterEuro : 0);
+          + floaterEuro;
       }
     }
 
@@ -309,7 +294,7 @@
 
     STATE.zones = G.buildZonesIndex(zoneRows);
     STATE.rates = G.buildRatesIndex(rateRows);
-    STATE.floaters = floaterJson || {};
+    STATE.floaters = (G.normalizeFloatersMap ? G.normalizeFloatersMap(floaterJson, STATE.werk) : (floaterJson || {}));
     STATE.surcharges = surchargeJson || {};
 
     const merged = new Set([...STATE.zones.listForwarders(), ...STATE.rates.listForwarders()]);
@@ -339,8 +324,8 @@
 
     const rows = [];
     for(const f of STATE.forwarders){
-      const floaterPct = getFloaterPct(f);
-      rows.push(computeForForwarder(f, stops, { ...opts, floaterPct }));
+      const floaterPct = G.normalizeFloaterValue ? G.normalizeFloaterValue(STATE.floaters[f]) : G.toNumber(STATE.floaters[f] ?? 0);
+      rows.push(computeForForwarder(f, stops, { ...opts, floaterPct: Number.isFinite(floaterPct) ? floaterPct : 0 }));
     }
 
     const valid = rows.filter(r => Number.isFinite(r.total)).sort((a,b)=>a.total-b.total || a.forwarder.localeCompare(b.forwarder,'de'));
