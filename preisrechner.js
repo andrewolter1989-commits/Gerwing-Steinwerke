@@ -150,7 +150,7 @@
     }
 
     if(chosenBase === null) return { zone:'—', base:null, reason: reasons.join(' / ') || '—' };
-    zoneDisplay = stops.length > 1 ? 'multi' : chosenZone;
+    zoneDisplay = chosenZone;
     return { zone: zoneDisplay, base: chosenBase, reason:'' };
   }
 
@@ -231,7 +231,7 @@
   function renderSummary(stops, best){
     const plzText = stops.map(s=>`PLZ${s.idx}: ${s.plz}`).join(' / ');
     const tw = totalWeight(stops);
-    $('sumPlz').textContent = plzText || '—';
+    $('sumPlz').textContent = stops[0]?.plz ? `PLZ1: ${stops[0].plz}` : '—';
     $('sumWeight').textContent = Number.isFinite(tw) ? G.formatKg(tw) : '—';
     $('sumOptions').textContent = optionsLabel();
     $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} Stop${stops.length===1?'':'s'} / ${tourLabel()}`;
@@ -248,8 +248,8 @@
     if(opts.baustelle) cols.push({ key:'baustelle', label:'Baustelle (€)', align:'end', fmt:v=> typeof v==='number' ? G.formatEuro(v) : (v || '') });
     if(opts.stop2) cols.push({ key:'stop2', label:'2. Stopp (€)', align:'end', fmt:v=> Number.isFinite(v) ? G.formatEuro(v) : (v || '') });
     if(opts.stop3) cols.push({ key:'stop3', label:'3. Stopp (€)', align:'end', fmt:v=> Number.isFinite(v) ? G.formatEuro(v) : (v || '') });
-    cols.push({ key:'floaterPct', label:'Floater (%)', align:'end', fmt:v=> Number.isFinite(v) ? v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+'%' : '' });
-    cols.push({ key:'floaterEuro', label:'Floater (€)', align:'end', fmt:v=> Number.isFinite(v) ? G.formatEuro(v) : '—' });
+    cols.push({ key:'floaterPct', label:'Floater (%)', align:'end', fmt:v=> (Number.isFinite(v) && Math.abs(v) > 1e-9) ? v.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2})+'%' : '' });
+    cols.push({ key:'floaterEuro', label:'Floater (€)', align:'end', fmt:v=> (Number.isFinite(v) && Math.abs(v) > 1e-9) ? G.formatEuro(v) : '' });
     cols.push({ key:'total', label:'Preis (€)', align:'end', fmt:v=> Number.isFinite(v) ? G.formatEuro(v) : '—' });
     cols.push({ key:'reason', label:'Grund', align:'start', fmt:v=>v||'' });
     return cols;
@@ -328,15 +328,17 @@
       rows.push(computeForForwarder(f, stops, { ...opts, floaterPct: Number.isFinite(floaterPct) ? floaterPct : 0 }));
     }
 
-    const valid = rows.filter(r => Number.isFinite(r.total));
+    const valid = rows.filter(r => Number.isFinite(r.total)).sort((a,b)=>a.total-b.total || a.forwarder.localeCompare(b.forwarder,'de'));
+    const invalid = rows.filter(r => !Number.isFinite(r.total)).sort((a,b)=>a.forwarder.localeCompare(b.forwarder,'de'));
     let best = null;
     if(valid.length){
-      best = valid.reduce((m,r)=> (m===null || r.total < m.total) ? r : m, null);
-      for(const r of rows) r.highlight = (r.forwarder === best.forwarder);
+      best = valid[0];
+      for(const r of valid) r.highlight = (r.forwarder === best.forwarder);
     }
 
+    const orderedRows = valid.concat(invalid);
     renderSummary(stops, best);
-    renderTable(rows, opts);
+    renderTable(orderedRows, opts);
     showHint(`Daten geladen: ${STATE.forwarders.length} Spediteure.`);
   }
 
