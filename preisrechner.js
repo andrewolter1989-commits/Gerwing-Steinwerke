@@ -1,4 +1,4 @@
-/* Gerwing Steinwerke Preisrechner – App Logic (v6.3 stable) */
+/* Gerwing Steinwerke Preisrechner – App Logic (v6 stable) */
 (function(){
   'use strict';
 
@@ -18,8 +18,7 @@
   const SPECIAL = {
     baustelleIncludedForwarders: new Set(['Böckmann','Bockmann']), // base tariff switches to bau/freight; surcharge itself stays included
     baustelleBlockedForwarders: new Set(['Berghegger','Hartmann','DB Schenker']),
-    sievertForwarders: new Set(['Sievert']),
-    brueningTonForwarders: new Set(['Brüning','Bruening'])
+    sievertForwarders: new Set(['Sievert'])
   };
 
   const $ = (id)=>document.getElementById(id);
@@ -99,6 +98,12 @@
     return Number.isFinite(v) ? v : null;
   }
 
+  function getFloaterPct(forwarder){
+    const raw = STATE.floaters[forwarder];
+    const v = G.normalizeFloaterValue ? G.normalizeFloaterValue(raw) : G.toNumber(raw);
+    return Number.isFinite(v) ? v : 0;
+  }
+
   function computeBaseForForwarder(sp, stops, applyBaz){
     const wt = totalWeight(stops);
     const rateKey = (sp === 'Böckmann' || sp === 'Bockmann')
@@ -164,56 +169,62 @@
     let baustelle = null;
     let stop2 = null;
     let stop3 = null;
-    let floaterPct = opts.floaterPct;
+    let floaterPct = Number.isFinite(opts.floaterPct) ? opts.floaterPct : 0;
     let floaterEuro = null;
     let total = null;
 
     if(base !== null){
       // Baustelle
       if(opts.baustelle){
-        if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
+        const totalKg = totalWeight(stops);
+
+        // Sonderregel Brüning: 3,5 € pro Tonne bei Baustellenbelieferung
+        if(/^brüning$/i.test(forwarder) || /^bruening$/i.test(forwarder)){
+          const tons = totalKg / 1000;
+          baustelle = tons * 3.5;
+        }
+        else if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
           base = null;
           reason = reason ? `${reason} / Keine Baustellenzustellung` : 'Keine Baustellenzustellung';
         } else if(SPECIAL.baustelleIncludedForwarders.has(forwarder)){
           baustelle = 'inkl.';
-        } else if(SPECIAL.brueningTonForwarders.has(forwarder)){
-          const tons = totalWeight(stops) / 1000;
-          baustelle = tons > 0 ? (tons * 3.5) : '';
         } else {
           const v = getSurchargeValue(forwarder, 'baustelle');
-          if(Number.isFinite(v) && v > 0){
+          if(Number.isFinite(v) && Math.abs(v) > 1e-9){
             baustelle = v;
           } else {
-            // active but no surcharge configured -> old tool displayed none/add 0 for allowed providers
+            // aktiv, aber kein Zuschlag gepflegt => leer
             baustelle = '';
           }
         }
       }
 
-      // second stop surcharge when selected
+      // zweiter Stopp
       if(base !== null && opts.stop2){
         if(!(opts.baustelle && SPECIAL.baustelleBlockedForwarders.has(forwarder))){
           const v = getSurchargeValue(forwarder, 'stop2');
-          stop2 = (Number.isFinite(v) && v > 0) ? v : '';
+          stop2 = (Number.isFinite(v) && Math.abs(v) > 1e-9) ? v : '';
         }
       }
 
-      // third stop surcharge when selected
+      // dritter Stopp
       if(base !== null && opts.stop3){
         if(!(opts.baustelle && SPECIAL.baustelleBlockedForwarders.has(forwarder))){
           const v = getSurchargeValue(forwarder, 'stop3');
-          stop3 = (Number.isFinite(v) && v > 0) ? v : '';
+          stop3 = (Number.isFinite(v) && Math.abs(v) > 1e-9) ? v : '';
         }
       }
 
       if(base !== null){
-        floaterPct = Number.isFinite(floaterPct) ? floaterPct : 0;
-        floaterEuro = base * floaterPct / 100;
+        floaterEuro = (Number.isFinite(floaterPct) && Math.abs(floaterPct) > 1e-9)
+          ? (base * floaterPct / 100)
+          : 0;
+
         total = base
           + (typeof baustelle === 'number' ? baustelle : 0)
           + (typeof stop2 === 'number' ? stop2 : 0)
           + (typeof stop3 === 'number' ? stop3 : 0)
-          + floaterEuro;
+          + (Number.isFinite(floaterEuro) ? floaterEuro : 0);
       }
     }
 
@@ -238,7 +249,7 @@
     $('sumPlz').textContent = stops[0]?.plz ? `PLZ1: ${stops[0].plz}` : '—';
     $('sumWeight').textContent = Number.isFinite(tw) ? G.formatKg(tw) : '—';
     $('sumOptions').textContent = optionsLabel();
-    $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} ${stops.length===1?'Stopp':'Stopps'} / ${tourLabel()}`;
+    $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} Stop${stops.length===1?'':'s'} / ${tourLabel()}`;
     $('sumStops').textContent = stops.map(s=>`PLZ${s.idx}: ${s.plz} / Gewicht${s.idx}: ${G.formatKg(s.weight)}`).join(' | ');
     $('bestName').textContent = (best && Number.isFinite(best.total)) ? `${best.forwarder} (${G.formatEuro(best.total)} €)` : '—';
   }
@@ -328,8 +339,8 @@
 
     const rows = [];
     for(const f of STATE.forwarders){
-      const floaterPct = G.toNumber(STATE.floaters[f] ?? 0);
-      rows.push(computeForForwarder(f, stops, { ...opts, floaterPct: Number.isFinite(floaterPct) ? floaterPct : 0 }));
+      const floaterPct = getFloaterPct(f);
+      rows.push(computeForForwarder(f, stops, { ...opts, floaterPct }));
     }
 
     const valid = rows.filter(r => Number.isFinite(r.total)).sort((a,b)=>a.total-b.total || a.forwarder.localeCompare(b.forwarder,'de'));

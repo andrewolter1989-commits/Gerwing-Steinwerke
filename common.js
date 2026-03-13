@@ -203,7 +203,24 @@
     };
   };
 
-  Gerwing.filesForWerk = function(werk){
+  
+  Gerwing.normalizeFloaterValue = function(v){
+    if(v === null || v === undefined) return 0;
+    if(typeof v === 'number' || typeof v === 'string') {
+      const n = Gerwing.toNumber(v);
+      return Number.isFinite(n) ? n : 0;
+    }
+    if(typeof v === 'object'){
+      const candidates = [v.value, v.pct, v.percent, v.floater, v.floaterPct];
+      for(const c of candidates){
+        const n = Gerwing.toNumber(c);
+        if(Number.isFinite(n)) return n;
+      }
+    }
+    return 0;
+  };
+
+Gerwing.filesForWerk = function(werk){
     const w = (werk || '').toLowerCase();
     if(!w) return null;
     return {
