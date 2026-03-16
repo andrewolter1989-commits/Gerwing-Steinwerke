@@ -1,2 +1,302 @@
 ﻿Key;;;;
 Forwarder;Dest From;Dest To;Zone;Label
+Sievert;1000;1999;1;de 01
+Sievert;2000;2999;2;de 02
+Sievert;3000;3999;3;de 03
+Sievert;4000;4999;4;de 04
+Sievert;6000;6999;5;de 06
+Sievert;7000;7999;6;de 07
+Sievert;8000;8999;7;de 08
+Sievert;9000;9999;8;de 09
+Sievert;10000;10999;9;de 10
+Sievert;12000;12999;10;de 12
+Sievert;13000;13999;11;de 13
+Sievert;14000;14999;12;de 14
+Sievert;15000;15999;13;de 15
+Sievert;16000;16999;14;de 16
+Sievert;17000;17999;15;de 17
+Sievert;18000;18999;16;de 18
+Sievert;19000;19999;17;de 19
+Sievert;20000;20999;18;de 20
+Sievert;21000;21999;19;de 21
+Sievert;22000;22999;20;de 22
+Sievert;23000;23999;21;de 23
+Sievert;24000;24999;22;de 24
+Sievert;25000;25999;23;de 25
+Sievert;26000;26999;24;de 26
+Sievert;27000;27999;25;de 27
+Sievert;28000;28999;26;de 28
+Sievert;29000;29999;27;de 29
+Sievert;30000;30999;28;de 30
+Sievert;31000;31999;29;de 31
+Sievert;32000;32999;30;de 32
+Sievert;33000;33999;31;de 33
+Sievert;34000;34999;32;de 34
+Sievert;35000;35999;33;de 35
+Sievert;36000;36999;34;de 36
+Sievert;37000;37999;35;de 37
+Sievert;38000;38999;36;de 38
+Sievert;39000;39999;37;de 39
+Sievert;40000;40999;38;de 40
+Sievert;41000;41999;39;de 41
+Sievert;42000;42999;40;de 42
+Sievert;44000;44999;41;de 44
+Sievert;45000;45999;42;de 45
+Sievert;46000;46999;43;de 46
+Sievert;47000;47999;44;de 47
+Sievert;48000;48999;45;de 48
+Sievert;49000;49999;46;de 49
+Sievert;50000;50999;47;de 50
+Sievert;51000;51999;48;de 51
+Sievert;52000;52999;49;de 52
+Sievert;53000;53999;50;de 53
+Sievert;54000;54999;51;de 54
+Sievert;55000;55999;52;de 55
+Sievert;56000;56999;53;de 56
+Sievert;57000;57999;54;de 57
+Sievert;58000;58999;55;de 58
+Sievert;59000;59999;56;de 59
+Sievert;60000;60999;57;de 60
+Sievert;61000;61999;58;de 61
+Sievert;63000;63999;59;de 63
+Sievert;64000;64999;60;de 64
+Sievert;65000;65999;61;de 65
+Sievert;66000;66999;62;de 66
+Sievert;67000;67999;63;de 67
+Sievert;68000;68999;64;de 68
+Sievert;69000;69999;65;de 69
+Sievert;70000;70999;66;de 70
+Sievert;71000;71999;67;de 71
+Sievert;72000;72999;68;de 72
+Sievert;73000;73999;69;de 73
+Sievert;74000;74999;70;de 74
+Sievert;75000;75999;71;de 75
+Sievert;76000;76999;72;de 76
+Sievert;77000;77999;73;de 77
+Sievert;78000;78999;74;de 78
+Sievert;79000;79999;75;de 79
+Sievert;80000;80999;76;de 80
+Sievert;81000;81999;77;de 81
+Sievert;82000;82999;78;de 82
+Sievert;83000;83999;79;de 83
+Sievert;84000;84999;80;de 84
+Sievert;85000;85999;81;de 85
+Sievert;86000;86999;82;de 86
+Sievert;87000;87999;83;de 87
+Sievert;88000;88999;84;de 88
+Sievert;89000;89999;85;de 89
+Sievert;90000;90999;86;de 90
+Sievert;91000;91999;87;de 91
+Sievert;92000;92999;88;de 92
+Sievert;93000;93999;89;de 93
+Sievert;94000;94999;90;de 94
+Sievert;95000;95999;91;de 95
+Sievert;96000;96999;92;de 96
+Sievert;97000;97999;93;de 97
+Sievert;98000;98999;94;de 98
+Sievert;99000;99999;95;de 99
+Illig;16300;16399;1;Schwedt
+Illig;18500;18599;2;Bergen
+Illig;21300;21399;3;Lüneburg
+Illig;21600;21699;4;Stade
+Illig;21700;21799;5;Hemmoor
+Illig;24100;24199;6;Kiel
+Illig;24300;24399;7;Lütjenburg
+Illig;25300;25399;8;Elmshorn
+Illig;25400;25499;9;Rellingen
+Illig;26100;26199;10;Friesoythe
+Illig;26100;26199;11;Oldenburg
+Illig;26600;26699;12;Aurich
+Illig;26700;26799;13;Leer
+Illig;26800;26899;14;Papenburg
+Illig;27600;27699;15;Schiffdorf-Wehnden
+Illig;27700;27799;16;Ganderkesee
+Illig;27800;27899;17;Dötlingen
+Illig;40700;40799;18;Langenfeld
+Illig;48100;48199;19;Münster
+Illig;48500;48599;20;Nordhorn
+Illig;49800;49899;21;Lingen
+Illig;49800;49899;22;Neuenhaus-Veldhausen
+Illig;53200;53299;23;Bonn
+Illig;58600;58699;24;Iserlohn
+Illig;59000;59099;25;Hamm
+Illig;63300;63399;26;Dreieich
+Illig;66300;66399;27;Völklingen
+Illig;76600;76699;28;Kalrsdorf
+Illig;79200;79299;29;Hartheim
+Illig;79800;79899;30;Bernau
+Illig;83000;83099;31;Rosenheim
+Illig;93300;93399;32;Rohr
+Illig;38100;38199;33;Braunschweig
+Illig;58500;58599;34;Halver
+Illig;35000;35099;35;Marburg
+Illig;24500;24599;36;Neumünster
+Illig;33000;33199;37;Padeborn
+Illig;66100;66199;38;Saarbrücken
+Illig;77600;77799;39;Schutterwald
+Illig;57000;57099;40;Siegen
+Illig;70173;70629;41;Stuttgart
+Kretzschmar;16300;16399;1;Schwedt
+Kretzschmar;18500;18599;2;Bergen
+Kretzschmar;21300;21399;3;Lüneburg
+Kretzschmar;21600;21699;4;Stade
+Kretzschmar;21700;21799;5;Hemmoor
+Kretzschmar;24100;24199;6;Kiel
+Kretzschmar;24300;24399;7;Lütjenburg
+Kretzschmar;25300;25399;8;Elmshorn
+Kretzschmar;25400;25499;9;Rellingen
+Kretzschmar;26100;26199;10;Friesoythe
+Kretzschmar;26100;26199;11;Oldenburg
+Kretzschmar;26600;26699;12;Aurich
+Kretzschmar;26700;26799;13;Leer
+Kretzschmar;26800;26899;14;Papenburg
+Kretzschmar;27600;27699;15;Schiffdorf-Wehnden
+Kretzschmar;27700;27799;16;Ganderkesee
+Kretzschmar;27800;27899;17;Dötlingen
+Kretzschmar;40700;40799;18;Langenfeld
+Kretzschmar;48100;48199;19;Münster
+Kretzschmar;48500;48599;20;Nordhorn
+Kretzschmar;49800;49899;21;Lingen
+Kretzschmar;49800;49899;22;Neuenhaus-Veldhausen
+Kretzschmar;53200;53299;23;Bonn
+Kretzschmar;58600;58699;24;Iserlohn
+Kretzschmar;59000;59099;25;Hamm
+Kretzschmar;63300;63399;26;Dreieich
+Kretzschmar;66300;66399;27;Völklingen
+Kretzschmar;76600;76699;28;Kalrsdorf
+Kretzschmar;79200;79299;29;Hartheim
+Kretzschmar;79800;79899;30;Bernau
+Kretzschmar;83000;83099;31;Rosenheim
+Kretzschmar;93300;93399;32;Rohr
+Kretzschmar;38100;38199;33;Braunschweig
+Kretzschmar;58500;58599;34;Halver
+Kretzschmar;35000;35099;35;Marburg
+Kretzschmar;24500;24599;36;Neumünster
+Kretzschmar;33000;33199;37;Padeborn
+Kretzschmar;66100;66199;38;Saarbrücken
+Kretzschmar;77600;77799;39;Schutterwald
+Kretzschmar;57000;57099;40;Siegen
+Kretzschmar;70173;70629;41;Stuttgart
+Seidler;16300;16399;1;Schwedt
+Seidler;18500;18599;2;Bergen
+Seidler;21300;21399;3;Lüneburg
+Seidler;21600;21699;4;Stade
+Seidler;21700;21799;5;Hemmoor
+Seidler;24100;24199;6;Kiel
+Seidler;24300;24399;7;Lütjenburg
+Seidler;25300;25399;8;Elmshorn
+Seidler;25400;25499;9;Rellingen
+Seidler;26100;26199;10;Friesoythe
+Seidler;26100;26199;11;Oldenburg
+Seidler;26600;26699;12;Aurich
+Seidler;26700;26799;13;Leer
+Seidler;26800;26899;14;Papenburg
+Seidler;27600;27699;15;Schiffdorf-Wehnden
+Seidler;27700;27799;16;Ganderkesee
+Seidler;27800;27899;17;Dötlingen
+Seidler;40700;40799;18;Langenfeld
+Seidler;48100;48199;19;Münster
+Seidler;48500;48599;20;Nordhorn
+Seidler;49800;49899;21;Lingen
+Seidler;49800;49899;22;Neuenhaus-Veldhausen
+Seidler;53200;53299;23;Bonn
+Seidler;58600;58699;24;Iserlohn
+Seidler;59000;59099;25;Hamm
+Seidler;63300;63399;26;Dreieich
+Seidler;66300;66399;27;Völklingen
+Seidler;76600;76699;28;Kalrsdorf
+Seidler;79200;79299;29;Hartheim
+Seidler;79800;79899;30;Bernau
+Seidler;83000;83099;31;Rosenheim
+Seidler;93300;93399;32;Rohr
+Seidler;38100;38199;33;Braunschweig
+Seidler;58500;58599;34;Halver
+Seidler;35000;35099;35;Marburg
+Seidler;24500;24599;36;Neumünster
+Seidler;33000;33199;37;Padeborn
+Seidler;66100;66199;38;Saarbrücken
+Seidler;77600;77799;39;Schutterwald
+Seidler;57000;57099;40;Siegen
+Seidler;70173;70629;41;Stuttgart
+GLX;16300;16399;1;Schwedt
+GLX;18500;18599;2;Bergen
+GLX;21300;21399;3;Lüneburg
+GLX;21600;21699;4;Stade
+GLX;21700;21799;5;Hemmoor
+GLX;24100;24199;6;Kiel
+GLX;24300;24399;7;Lütjenburg
+GLX;25300;25399;8;Elmshorn
+GLX;25400;25499;9;Rellingen
+GLX;26100;26199;10;Friesoythe
+GLX;26100;26199;11;Oldenburg
+GLX;26600;26699;12;Aurich
+GLX;26700;26799;13;Leer
+GLX;26800;26899;14;Papenburg
+GLX;27600;27699;15;Schiffdorf-Wehnden
+GLX;27700;27799;16;Ganderkesee
+GLX;27800;27899;17;Dötlingen
+GLX;40700;40799;18;Langenfeld
+GLX;48100;48199;19;Münster
+GLX;48500;48599;20;Nordhorn
+GLX;49800;49899;21;Lingen
+GLX;49800;49899;22;Neuenhaus-Veldhausen
+GLX;53200;53299;23;Bonn
+GLX;58600;58699;24;Iserlohn
+GLX;59000;59099;25;Hamm
+GLX;63300;63399;26;Dreieich
+GLX;66300;66399;27;Völklingen
+GLX;76600;76699;28;Kalrsdorf
+GLX;79200;79299;29;Hartheim
+GLX;79800;79899;30;Bernau
+GLX;83000;83099;31;Rosenheim
+GLX;93300;93399;32;Rohr
+GLX;38100;38199;33;Braunschweig
+GLX;58500;58599;34;Halver
+GLX;35000;35099;35;Marburg
+GLX;24500;24599;36;Neumünster
+GLX;33000;33199;37;Padeborn
+GLX;66100;66199;38;Saarbrücken
+GLX;77600;77799;39;Schutterwald
+GLX;57000;57099;40;Siegen
+GLX;70173;70629;41;Stuttgart
+Kolbeck;16300;16399;1;Schwedt
+Kolbeck;18500;18599;2;Bergen
+Kolbeck;21300;21399;3;Lüneburg
+Kolbeck;21600;21699;4;Stade
+Kolbeck;21700;21799;5;Hemmoor
+Kolbeck;24100;24199;6;Kiel
+Kolbeck;24300;24399;7;Lütjenburg
+Kolbeck;25300;25399;8;Elmshorn
+Kolbeck;25400;25499;9;Rellingen
+Kolbeck;26100;26199;10;Friesoythe
+Kolbeck;26100;26199;11;Oldenburg
+Kolbeck;26600;26699;12;Aurich
+Kolbeck;26700;26799;13;Leer
+Kolbeck;26800;26899;14;Papenburg
+Kolbeck;27600;27699;15;Schiffdorf-Wehnden
+Kolbeck;27700;27799;16;Ganderkesee
+Kolbeck;27800;27899;17;Dötlingen
+Kolbeck;40700;40799;18;Langenfeld
+Kolbeck;48100;48199;19;Münster
+Kolbeck;48500;48599;20;Nordhorn
+Kolbeck;49800;49899;21;Lingen
+Kolbeck;49800;49899;22;Neuenhaus-Veldhausen
+Kolbeck;53200;53299;23;Bonn
+Kolbeck;58600;58699;24;Iserlohn
+Kolbeck;59000;59099;25;Hamm
+Kolbeck;63300;63399;26;Dreieich
+Kolbeck;66300;66399;27;Völklingen
+Kolbeck;76600;76699;28;Kalrsdorf
+Kolbeck;79200;79299;29;Hartheim
+Kolbeck;79800;79899;30;Bernau
+Kolbeck;83000;83099;31;Rosenheim
+Kolbeck;93300;93399;32;Rohr
+Kolbeck;38100;38199;33;Braunschweig
+Kolbeck;58500;58599;34;Halver
+Kolbeck;35000;35099;35;Marburg
+Kolbeck;24500;24599;36;Neumünster
+Kolbeck;33000;33199;37;Padeborn
+Kolbeck;66100;66199;38;Saarbrücken
+Kolbeck;77600;77799;39;Schutterwald
+Kolbeck;57000;57099;40;Siegen
+Kolbeck;70173;70629;41;Stuttgart
