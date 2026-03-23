@@ -170,7 +170,12 @@
     if(base !== null){
       // Baustelle
       if(opts.baustelle){
-        if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
+        const totalKg = totalWeight(stops);
+
+        // Sonderregel Brüning: 3,5 € pro Tonne bei Baustellenbelieferung
+        if(/^brüning$/i.test(forwarder) || /^bruening$/i.test(forwarder)){
+          baustelle = (totalKg / 1000) * 3.5;
+        } else if(SPECIAL.baustelleBlockedForwarders.has(forwarder)){
           base = null;
           reason = reason ? `${reason} / Keine Baustellenzustellung` : 'Keine Baustellenzustellung';
         } else if(SPECIAL.baustelleIncludedForwarders.has(forwarder)){
