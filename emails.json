@@ -1,0 +1,23 @@
+{
+  "Berghegger": {
+    "availability": "Service@berghegger.com"
+  },
+  "DB Schenker": {
+    "availability": "de.sm.osn.direct@dbschenker.com"
+  },
+  "Brüning": {
+    "availability": "blome@bruening-transporte.com"
+  },
+  "Sievert": {
+    "availability": "Steffen.wieland@sievert.de"
+  },
+  "Oelrich": {
+    "availability": ""
+  },
+  "Böckmann": {
+    "availability": "K.Golchert@boeckmann-spedition.de"
+  },
+  "Hartmann": {
+    "availability": ""
+  }
+}

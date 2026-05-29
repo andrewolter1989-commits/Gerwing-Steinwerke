@@ -11,6 +11,7 @@
     rates: null,
     floaters: {},
     surcharges: {},
+    emails: {},
     forwarders: [],
     loaded: false
   };
@@ -31,10 +32,7 @@
     el.classList.toggle('d-none', !msg);
   }
   function showHint(msg){
-    const el = $('msgHint');
-    if(!el) return;
-    el.textContent = msg || '';
-    el.classList.toggle('d-none', !msg);
+    // Hinweisfeld 'Daten geladen' wird bewusst nicht mehr angezeigt.
   }
   function setWerkHeading(werk){
     const h1 = $('title');
@@ -48,18 +46,33 @@
     const use3 = !!$('chk3')?.checked;
     $('stop2Box')?.classList.toggle('d-none', !use2);
     $('stop3Box')?.classList.toggle('d-none', !use3);
-    if(!use2){ if($('plz2')) $('plz2').value=''; if($('w2')) $('w2').value=''; }
-    if(!use3){ if($('plz3')) $('plz3').value=''; if($('w3')) $('w3').value=''; }
+    if(!use2){ if($('plz2')) $('plz2').value=''; if($('w2')) $('w2').value=''; if($('pallets2')) $('pallets2').value=''; }
+    if(!use3){ if($('plz3')) $('plz3').value=''; if($('w3')) $('w3').value=''; if($('pallets3')) $('pallets3').value=''; }
   }
 
   function getStops(){
     const stops = [];
-    stops.push({ idx:1, plz: ($('plz1')?.value ?? '').trim(), weight: G.toNumber(($('w1')?.value ?? '').trim()) });
+    stops.push({
+      idx:1,
+      plz: ($('plz1')?.value ?? '').trim(),
+      weight: G.toNumber(($('w1')?.value ?? '').trim()),
+      pallets: ($('pallets')?.value ?? '').trim()
+    });
     if($('chk2')?.checked){
-      stops.push({ idx:2, plz: ($('plz2')?.value ?? '').trim(), weight: G.toNumber(($('w2')?.value ?? '').trim()) });
+      stops.push({
+        idx:2,
+        plz: ($('plz2')?.value ?? '').trim(),
+        weight: G.toNumber(($('w2')?.value ?? '').trim()),
+        pallets: ($('pallets2')?.value ?? '').trim()
+      });
     }
     if($('chk3')?.checked){
-      stops.push({ idx:3, plz: ($('plz3')?.value ?? '').trim(), weight: G.toNumber(($('w3')?.value ?? '').trim()) });
+      stops.push({
+        idx:3,
+        plz: ($('plz3')?.value ?? '').trim(),
+        weight: G.toNumber(($('w3')?.value ?? '').trim()),
+        pallets: ($('pallets3')?.value ?? '').trim()
+      });
     }
     return stops;
   }
@@ -80,16 +93,92 @@
     return stops.reduce((sum,s)=>sum + (Number.isFinite(s.weight) ? s.weight : 0), 0);
   }
 
+  function totalPalletsFromStops(stops){
+    let total = 0;
+    let hasAny = false;
+    for(const s of stops){
+      const raw = String(s.pallets || '').trim().replace(',', '.');
+      const value = Number(raw);
+      if(Number.isFinite(value)){
+        total += value;
+        hasAny = true;
+      }
+    }
+    return hasAny ? total : null;
+  }
+
+  function formatKgNoDecimals(value){
+    if(!Number.isFinite(value)) return '—';
+    return value.toLocaleString('de-DE', { maximumFractionDigits: 0 }) + ' kg';
+  }
+
+  function formatPallets(value){
+    if(value === null || value === undefined || value === '') return '—';
+    const num = Number(String(value).replace(',', '.'));
+    if(Number.isFinite(num)) return num.toLocaleString('de-DE', { maximumFractionDigits: 0 });
+    return String(value);
+  }
+
+  function unloadCountLabel(stops){
+    const count = stops.length || 1;
+    return `${count} Entladestelle${count === 1 ? '' : 'n'}`;
+  }
+
   function optionsLabel(){
     const opts = [];
-    if($('chkBaustelle')?.checked) opts.push('Baustelle');
-    if($('chk2')?.checked) opts.push('Zweiter Stopp');
-    if($('chk3')?.checked) opts.push('Dritter Stopp');
-    return opts.length ? opts.join(', ') : '—';
+    opts.push($('chkBaustelle')?.checked ? 'Baustelle' : 'Lagertour');
+    if($('chk2')?.checked) opts.push('2. Stopp');
+    if($('chk3')?.checked) opts.push('3. Stopp');
+    return opts.join(', ');
   }
 
   function tourLabel(){
-    return $('chkBaustelle')?.checked ? 'Baustellentour' : 'Standard';
+    return $('chkBaustelle')?.checked ? 'Baustellentour' : 'Lagertour';
+  }
+
+
+  function getLoadingPointText(){
+    const label = G.getWerkLabel(STATE.werk);
+    if(String(STATE.werk).toLowerCase() === 'holdorf') {
+      return `Ladestelle Gerwing Holdorf\nIndustriestraße 52, 49451 Holdorf`;
+    }
+    return `Ladestelle Gerwing ${label}`;
+  }
+
+  function formatDisplayDate(value){
+    if(!value) return '—';
+    const parts = String(value).split('-');
+    if(parts.length !== 3) return value;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  }
+
+  function normalizeEmailKey(value){
+    return String(value || '').trim().toLowerCase().replace(/\s+/g,' ');
+  }
+
+  function getExtraInputs(){
+    return {
+      pallets: ($('pallets')?.value || '').trim(),
+      pickupDate: formatDisplayDate($('pickupDate')?.value || ''),
+      deliveryDate: formatDisplayDate($('deliveryDate')?.value || ''),
+      freeText: ($('freeText')?.value || '').trim()
+    };
+  }
+
+  function getEmailConfig(forwarder){
+    const cfg = STATE.emails[normalizeEmailKey(forwarder)] || STATE.emails[forwarder] || {};
+    if(typeof cfg === 'string') return { availability: cfg.trim(), booking: cfg.trim() };
+    return {
+      availability: String(cfg.availability || cfg.anfrage || cfg.request || '').trim(),
+      booking: String(cfg.booking || cfg.buchung || cfg.order || '').trim()
+    };
+  }
+
+  function createEmailButton(kind, forwarder){
+    const cfg = getEmailConfig(forwarder);
+    const address = cfg.availability || cfg.booking || '';
+    if(!address) return '<span class="email-missing">Keine E-Mail hinterlegt</span>';
+    return `<button type="button" class="email-btn" data-forwarder="${esc(forwarder)}">Anfrage stellen</button>`;
   }
 
   function getSurchargeValue(forwarder, key){
@@ -234,13 +323,29 @@
   }
 
   function renderSummary(stops, best){
-    const plzText = stops.map(s=>`PLZ${s.idx}: ${s.plz}`).join(' / ');
     const tw = totalWeight(stops);
-    $('sumPlz').textContent = stops[0]?.plz ? `PLZ1: ${stops[0].plz}` : '—';
-    $('sumWeight').textContent = Number.isFinite(tw) ? G.formatKg(tw) : '—';
-    $('sumOptions').textContent = optionsLabel();
-    $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length} Stop${stops.length===1?'':'s'} / ${tourLabel()}`;
-    $('sumStops').textContent = stops.map(s=>`PLZ${s.idx}: ${s.plz} / Gewicht${s.idx}: ${G.formatKg(s.weight)}`).join(' | ');
+    const extra = getExtraInputs();
+    const totalPallets = totalPalletsFromStops(stops);
+    const palletsDisplay = totalPallets !== null ? formatPallets(totalPallets) : (extra.pallets || '—');
+
+    if($('sumTotals')) {
+      $('sumTotals').textContent = `${G.formatKg(tw)} / ${stops.length || 0} ${(stops.length || 0) === 1 ? 'Stopp' : 'Stopps'} / ${palletsDisplay} Paletten / ${tourLabel()}`;
+    }
+    if($('sumPickupDate')) $('sumPickupDate').textContent = extra.pickupDate;
+    if($('sumDeliveryDate')) $('sumDeliveryDate').textContent = extra.deliveryDate;
+    if($('sumFreeText')) $('sumFreeText').textContent = extra.freeText || '—';
+
+    if($('sumStops')) {
+      if(!stops.length){
+        $('sumStops').textContent = '—';
+      } else {
+        $('sumStops').innerHTML = stops.map(s => {
+          const pal = s.pallets ? ` / ${formatPallets(s.pallets)} Paletten` : '';
+          return `<span class="summary-stop-line">Stopp${s.idx}: PLZ${s.idx}: ${esc(s.plz)} / Gewicht${s.idx}: ${formatKgNoDecimals(s.weight)}${pal}</span>`;
+        }).join('');
+      }
+    }
+
     $('bestName').textContent = (best && Number.isFinite(best.total)) ? `${best.forwarder} (${G.formatEuro(best.total)} €)` : '—';
   }
 
@@ -257,6 +362,7 @@
     cols.push({ key:'floaterEuro', label:'Floater (€)', align:'end', fmt:v=> (Number.isFinite(v) && Math.abs(v) > 1e-9) ? G.formatEuro(v) : '' });
     cols.push({ key:'total', label:'Preis (€)', align:'end', fmt:v=> Number.isFinite(v) ? G.formatEuro(v) : '—' });
     cols.push({ key:'reason', label:'Grund', align:'start', fmt:v=>v||'' });
+    cols.push({ key:'availabilityEmail', label:'Anfrage', align:'start', html:true, fmt:(v,row)=> Number.isFinite(row.total) ? createEmailButton('availability', row.forwarder) : '' });
     return cols;
   }
 
@@ -273,9 +379,10 @@
     tbody.innerHTML = rows.map(r=>{
       const cls = r.highlight ? ' class="winner"' : '';
       return `<tr${cls}>` + cols.map(c=>{
-        let val = c.fmt ? c.fmt(r[c.key]) : r[c.key];
+        let val = c.fmt ? c.fmt(r[c.key], r) : r[c.key];
         if(val === null || val === undefined) val = '';
-        return `<td class="text-${c.align==='end'?'end':'start'}">${esc(val)}</td>`;
+        const safeVal = c.html ? val : esc(val);
+        return `<td class="text-${c.align==='end'?'end':'start'}">${safeVal}</td>`;
       }).join('') + `</tr>`;
     }).join('');
   }
@@ -287,11 +394,12 @@
 
     setWerkHeading(STATE.werk);
 
-    const [zonesText, ratesText, floaterJson, surchargeJson] = await Promise.all([
+    const [zonesText, ratesText, floaterJson, surchargeJson, emailJson] = await Promise.all([
       G.fetchText(STATE.files.zones),
       G.fetchText(STATE.files.rates),
       G.fetchJson(STATE.files.floater).catch(()=>({})),
-      G.fetchJson(STATE.files.surcharges).catch(()=>({}))
+      G.fetchJson(STATE.files.surcharges).catch(()=>({})),
+      G.fetchJson('emails.json').catch(()=>({}))
     ]);
 
     const zoneRows = G.parseCSV(zonesText);
@@ -301,6 +409,10 @@
     STATE.rates = G.buildRatesIndex(rateRows);
     STATE.floaters = (G.normalizeFloatersMap ? G.normalizeFloatersMap(floaterJson, STATE.werk) : (floaterJson || {}));
     STATE.surcharges = surchargeJson || {};
+    STATE.emails = {};
+    Object.entries(emailJson || {}).forEach(([key, value]) => {
+      STATE.emails[normalizeEmailKey(key)] = value;
+    });
 
     const merged = new Set([...STATE.zones.listForwarders(), ...STATE.rates.listForwarders()]);
     STATE.forwarders = Array.from(merged).sort((a,b)=>a.localeCompare(b,'de'));
@@ -348,7 +460,7 @@
   }
 
   function resetAll(){
-    ['plz1','w1','plz2','w2','plz3','w3'].forEach(id=>{ if($(id)) $(id).value=''; });
+    ['plz1','w1','pallets','pickupDate','deliveryDate','freeText','plz2','w2','pallets2','plz3','w3','pallets3'].forEach(id=>{ if($(id)) $(id).value=''; });
     ['chkBaustelle','chk2','chk3'].forEach(id=>{ if($(id)) $(id).checked=false; });
     updateStopVisibility();
     showErr('');
@@ -357,6 +469,59 @@
     showHint(STATE.loaded ? `Daten geladen: ${STATE.forwarders.length} Spediteure.` : '');
   }
 
+
+  window.createGerwingEmail = function(forwarder, kind){
+    const cfg = getEmailConfig(forwarder);
+    const to = cfg.availability || cfg.booking || '';
+    if(!to){
+      alert(`Für ${forwarder} ist noch keine E-Mail-Adresse hinterlegt.`);
+      return;
+    }
+
+    const stops = getStops().filter(s => s.plz || Number.isFinite(s.weight));
+    const extra = getExtraInputs();
+    const werkLabel = STATE.werk ? G.getWerkLabel(STATE.werk) : '';
+    const mainPlz = stops[0]?.plz || '';
+    const subject = encodeURIComponent(`Anfrage ab ${werkLabel} nach ${mainPlz}`.trim());
+    const totalPallets = totalPalletsFromStops(stops);
+    const palletsDisplay = totalPallets !== null ? formatPallets(totalPallets) : (extra.pallets || '-');
+
+    let bodyText = `Guten Tag zusammen,
+`;
+    bodyText += `folgende Tour würden wir gerne mit euch fahren:
+`;
+    bodyText += `Werk: ${werkLabel}
+
+`;
+
+    bodyText += `Optionen: ${tourLabel()} / ${unloadCountLabel(stops)}
+`;
+    bodyText += `Abholdatum: ${extra.pickupDate}
+`;
+    bodyText += `Liefertermin: ${extra.deliveryDate}
+`;
+    bodyText += `Gesamtgewicht: ${formatKgNoDecimals(totalWeight(stops))}
+`;
+    bodyText += `Paletten: ${palletsDisplay}
+`;
+    if(extra.freeText) bodyText += `Hinweis: ${extra.freeText}
+`;
+
+    for(const s of stops){
+      const palText = s.pallets ? ` / ${formatPallets(s.pallets)} Paletten` : '';
+      bodyText += `
+Stopp${s.idx}:
+`;
+      bodyText += `PLZ${s.idx}: ${s.plz || '-'} / Gewicht${s.idx}: ${Number.isFinite(s.weight) ? formatKgNoDecimals(s.weight) : '-'}${palText}
+`;
+    }
+
+    bodyText += `
+Vielen Dank und kurze Rückmeldung.`;
+
+    window.location.href = `mailto:${to}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
+  };
+
   document.addEventListener('DOMContentLoaded', async ()=>{
     try{
       updateStopVisibility();
@@ -364,6 +529,10 @@
       $('chk3')?.addEventListener('change', updateStopVisibility);
       $('btnCalc')?.addEventListener('click', calculate);
       $('btnReset')?.addEventListener('click', resetAll);
+      $('tbody')?.addEventListener('click', (event) => {
+        const btn = event.target.closest('.email-btn[data-forwarder]');
+        if(btn) window.createGerwingEmail(btn.dataset.forwarder, 'availability');
+      });
       renderTable([], {baustelle:false, stop2:false, stop3:false});
       await loadData();
     }catch(err){

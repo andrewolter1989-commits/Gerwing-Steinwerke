@@ -17,6 +17,95 @@
     .err{background:#f8d7da;border:1px solid rgba(220,53,69,.25);border-radius:10px;}
     .muted{color:#6c757d}
     .winner td{background:#d9f2de !important;}
+  
+    .email-btn{border:0;border-radius:10px;padding:8px 12px;background:#0a5b7a;color:#fff;font-weight:800;white-space:nowrap;}
+    .email-btn:hover{filter:brightness(1.08);}
+    .email-missing{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:8px 12px;background:#eef3f6;color:#6c757d;border:1px solid #c7d0d7;font-weight:700;white-space:nowrap;}
+    .extra-info-row{font-size:.95rem;}
+
+    /* v2 summary layout like Trocellen/Pano */
+    .summary{
+      background:#dff0e2;
+      border:1px solid #c7decf;
+      border-radius:14px;
+      padding:22px 20px!important;
+    }
+    .summary-layout{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:28px;
+      align-items:center;
+    }
+    .summary-left{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(210px,auto));
+      gap:10px 34px;
+      align-content:start;
+      font-size:1rem;
+    }
+    .summary-row{line-height:1.35;}
+    .summary-wide{grid-column:1 / -1;}
+    .summary-right{text-align:right;min-width:340px;}
+    .summary-best-label{font-weight:800;margin-bottom:8px;}
+    .summary-best{font-size:clamp(1.8rem,3vw,2.55rem);font-weight:900;color:#0d5f3b;line-height:1.08;}
+    #bestName{font-size:inherit;font-weight:inherit;color:inherit;}
+    .hint{display:none!important;}
+    @media(max-width:900px){.summary-layout{grid-template-columns:1fr}.summary-right{text-align:left;min-width:0}.summary-left{grid-template-columns:1fr}}
+
+    .stop-sections{display:grid;gap:14px;margin-top:16px;}
+    .stop-sections .card{box-shadow:none;border:1px solid #d7dde2;border-radius:16px;}
+    .summary-right{text-align:right;min-width:360px;}
+    .summary-best-label{font-weight:900;font-size:1rem;margin-bottom:10px;}
+    .summary-best{font-size:clamp(2rem,3.2vw,2.9rem);font-weight:950;color:#0d5f3b;line-height:1.08;}
+    .summary-left b{font-weight:900;color:#0a2535;}
+    @media(max-width:900px){.summary-right{text-align:left;min-width:0}.summary-best{font-size:2rem;}}
+  
+    /* v4 layout and summary polish */
+    .form-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end;}
+    .control-row{display:flex;flex-wrap:wrap;gap:22px;margin-top:18px;}
+    .button-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;}
+    .button-row .btn{min-width:180px;}
+    .stop-sections{margin-top:18px;margin-bottom:18px;}
+    .stop-sections .card{background:#fff;}
+    .summary-layout{grid-template-columns:1fr minmax(360px,auto)!important;align-items:center!important;}
+    .summary-right{text-align:right!important;min-width:360px!important;}
+    .summary-best-label{font-weight:900!important;font-size:1.05rem!important;margin-bottom:8px!important;color:#0a2535!important;}
+    .summary-best,
+    #bestName{font-size:clamp(2rem,3vw,2.8rem)!important;font-weight:950!important;color:#0d5f3b!important;line-height:1.05!important;}
+    @media(max-width:900px){
+      .form-card-grid{grid-template-columns:1fr;}
+      .summary-layout{grid-template-columns:1fr!important;}
+      .summary-right{text-align:left!important;min-width:0!important;}
+    }
+
+  
+    /* v5 summary cleanup */
+    .summary-left{
+      grid-template-columns:1fr!important;
+      gap:10px!important;
+      font-size:1rem!important;
+    }
+    .summary-right{
+      min-width:300px!important;
+    }
+    .summary-best,
+    #bestName{
+      font-size:clamp(1.55rem,2.2vw,2.15rem)!important;
+      font-weight:900!important;
+    }
+    .summary-stop-line{
+      display:block;
+      margin-top:4px;
+      line-height:1.35;
+    }
+    .summary-main-line{
+      font-weight:400;
+    }
+    @media(max-width:900px){
+      .summary-right{min-width:0!important;}
+      .summary-best,#bestName{font-size:1.7rem!important;}
+    }
+
   </style>
 </head>
 <body>
@@ -29,22 +118,22 @@
   </div>
 
   <div class="card p-4 mb-4">
-    <div class="row g-3 align-items-end">
-      <div class="col-md-5">
+    <div class="form-card-grid">
+      <div>
         <label class="form-label fw-bold">PLZ</label>
         <input id="plz1" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
       </div>
-      <div class="col-md-5">
+      <div>
         <label class="form-label fw-bold">Gewicht (kg)</label>
         <input id="w1" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
       </div>
-      <div class="col-md-2 d-grid gap-2">
-        <button id="btnCalc" class="btn btn-primary">Berechnen</button>
-        <button id="btnReset" class="btn btn-outline-secondary">Zurücksetzen</button>
+      <div>
+        <label class="form-label fw-bold">Paletten</label>
+        <input id="pallets" class="form-control" placeholder="z. B. 25" inputmode="numeric">
       </div>
     </div>
 
-    <div class="d-flex flex-wrap gap-4 mt-3">
+    <div class="control-row">
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="chkBaustelle">
         <label class="form-check-label" for="chkBaustelle">Baustelle</label>
@@ -59,49 +148,77 @@
       </div>
     </div>
 
-    <div id="stop2Box" class="card p-3 mt-3 d-none">
-      <div class="fw-bold mb-2">2. Stopp</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">PLZ 2</label>
-          <input id="plz2" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+    <div class="stop-sections">
+      <div id="stop2Box" class="card p-3 d-none">
+        <div class="fw-bold mb-2">2. Stopp</div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">PLZ 2</label>
+            <input id="plz2" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Gewicht 2 (kg)</label>
+            <input id="w2" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Paletten 2</label>
+            <input id="pallets2" class="form-control" placeholder="optional" inputmode="numeric">
+          </div>
         </div>
-        <div class="col-md-6">
-          <label class="form-label">Gewicht 2 (kg)</label>
-          <input id="w2" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+      </div>
+
+      <div id="stop3Box" class="card p-3 d-none">
+        <div class="fw-bold mb-2">3. Stopp</div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">PLZ 3</label>
+            <input id="plz3" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Gewicht 3 (kg)</label>
+            <input id="w3" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Paletten 3</label>
+            <input id="pallets3" class="form-control" placeholder="optional" inputmode="numeric">
+          </div>
         </div>
       </div>
     </div>
 
-    <div id="stop3Box" class="card p-3 mt-3 d-none">
-      <div class="fw-bold mb-2">3. Stopp</div>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">PLZ 3</label>
-          <input id="plz3" class="form-control" placeholder="z. B. 27777" inputmode="numeric">
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Gewicht 3 (kg)</label>
-          <input id="w3" class="form-control" placeholder="z. B. 2500" inputmode="decimal">
-        </div>
+    <div class="form-card-grid">
+      <div>
+        <label class="form-label fw-bold">Abholdatum</label>
+        <input id="pickupDate" class="form-control" type="date">
       </div>
+      <div>
+        <label class="form-label fw-bold">Liefertermin</label>
+        <input id="deliveryDate" class="form-control" type="date">
+      </div>
+      <div>
+        <label class="form-label fw-bold">Freitext</label>
+        <input id="freeText" class="form-control" placeholder="z. B. Zusatzinformationen">
+      </div>
+    </div>
+
+    <div class="button-row">
+      <button id="btnCalc" class="btn btn-primary">Berechnen</button>
+      <button id="btnReset" class="btn btn-outline-secondary">Zurücksetzen</button>
     </div>
 
     <div id="msgErr" class="err p-3 mt-3 d-none"></div>
-    <div id="msgHint" class="hint p-3 mt-3 d-none"></div>
-
     <div class="summary p-3 mt-3">
-      <div class="row">
-        <div class="col-md-7" id="summaryLeft">
-          <div><b>PLZ:</b> <span id="sumPlz">—</span></div>
-          <div><b>Gewicht:</b> <span id="sumWeight">—</span></div>
-          <div><b>Optionen:</b> <span id="sumOptions">—</span></div>
-          <div class="mt-2"><b>Gesamtgewicht / Stops / Baustelle:</b> <span id="sumTotals">—</span></div>
-          <div><b>Stops:</b> <span id="sumStops">—</span></div>
+      <div class="summary-layout">
+        <div class="summary-left" id="summaryLeft">
+          <div class="summary-row summary-main-line"><b>Gesamtgewicht / Stopps / Gesamt Paletten / Tour:</b> <span id="sumTotals">—</span></div>
+          <div class="summary-row"><b>Abholdatum:</b> <span id="sumPickupDate">—</span></div>
+          <div class="summary-row"><b>Liefertermin:</b> <span id="sumDeliveryDate">—</span></div>
+          <div class="summary-row"><b>Freitext:</b> <span id="sumFreeText">—</span></div>
+          <div class="summary-row summary-wide"><b>Stopps:</b> <span id="sumStops">—</span></div>
         </div>
-        <div class="col-md-5 text-md-end" id="summaryRight">
-          <div class="fw-bold">Günstigster Anbieter</div>
-          <div id="bestName">—</div>
+        <div class="summary-right" id="summaryRight">
+          <div class="summary-best-label">Günstigster Anbieter</div>
+          <div class="summary-best" id="bestName">—</div>
         </div>
       </div>
     </div>
@@ -121,10 +238,11 @@
           <th>Floater (€)</th>
           <th>Preis (€)</th>
           <th>Grund</th>
+          <th>Anfrage</th>
         </tr>
       </thead>
       <tbody id="tbody">
-        <tr><td colspan="10" class="muted">Noch keine Berechnung.</td></tr>
+        <tr><td colspan="11" class="muted">Noch keine Berechnung.</td></tr>
       </tbody>
     </table>
   </div>
